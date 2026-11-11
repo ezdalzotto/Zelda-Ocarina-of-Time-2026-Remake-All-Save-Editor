@@ -1,6 +1,8 @@
-# Zelda Ocarina of Time Save Editor
+# Zelda Ocarina of Time 2026 Remake Save Editor
 
-Save editor for the **Zelda: Ocarina of Time remake** (Nintendo Switch 2) **on PC**. It edits the save files on your Windows computer, used by the **Eden** emulator.
+Save editor for the **2026 remake** of **Zelda: Ocarina of Time** (Nintendo Switch 2) **on PC**. It edits the save files on your Windows computer, used by the **Eden** emulator.
+
+> ⚠️ Only for the **2026 remake**. It does **not** work with the original N64 game, Ocarina of Time 3D or PC ports such as Ship of Harkinian.
 
 **By Ernani Zanandrea Dalzotto** — [github.com/ezdalzotto](https://github.com/ezdalzotto)
 
@@ -10,14 +12,14 @@ Save editor for the **Zelda: Ocarina of Time remake** (Nintendo Switch 2) **on P
 
 ## Download
 
-Download **[Zelda-Ocarina-of-Time-Save-Editor.bat](Zelda-Ocarina-of-Time-Save-Editor.bat)** (open the file and click **Download raw file**). It is a single file: nothing to install.
+Download **[Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat](Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat)** (open the file and click **Download raw file**). It is a single file: nothing to install.
 
 Requirements: Windows 10 or 11 (uses the built-in PowerShell) and any modern browser.
 
 ## How to use
 
 1. **Stop the game in the emulator** (Emulation → Stop). The game keeps the save in memory and overwrites the file when it saves again or quits.
-2. Double-click `Zelda-Ocarina-of-Time-Save-Editor.bat`. A black window opens (keep it open) and the editor opens in your browser.
+2. Double-click `Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat`. A black window opens (keep it open) and the editor opens in your browser.
 3. Click the save folder that was found, or locate it manually (**Browse for progress.sav…** or paste the path).
 4. **Choose the slot.** Compare hearts, rupees, location and date with what the game shows. In-game "Slot 1" may be the `slot_00` folder.
 5. Edit and click **Save to game**.
@@ -68,20 +70,22 @@ Unofficial fan tool, not affiliated with Nintendo. Always keep a backup of your 
 
 ## Português
 
-Editor de save do **remake de Zelda: Ocarina of Time** (Nintendo Switch 2) **para PC**. Edita os arquivos de save no seu computador com Windows, usados pelo emulador **Eden**.
+Editor de save do **remake de 2026** de **Zelda: Ocarina of Time** (Nintendo Switch 2) **para PC**. Edita os arquivos de save no seu computador com Windows, usados pelo emulador **Eden**.
+
+> ⚠️ Somente para o **remake de 2026**. **Não** funciona com o jogo original de N64, com o Ocarina of Time 3D nem com ports para PC como o Ship of Harkinian.
 
 **Por Ernani Zanandrea Dalzotto** — [github.com/ezdalzotto](https://github.com/ezdalzotto)
 
 ### Download
 
-Baixe o **[Zelda-Ocarina-of-Time-Save-Editor.bat](Zelda-Ocarina-of-Time-Save-Editor.bat)** (abra o arquivo e clique em **Download raw file**). É um único arquivo: não precisa instalar nada.
+Baixe o **[Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat](Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat)** (abra o arquivo e clique em **Download raw file**). É um único arquivo: não precisa instalar nada.
 
 Requisitos: Windows 10 ou 11 (usa o PowerShell que já vem no sistema) e qualquer navegador atual.
 
 ### Como usar
 
 1. **Pare o jogo no emulador** (Emulação → Parar). O jogo guarda o save na memória e grava por cima do arquivo quando salva de novo ou ao sair.
-2. Dê dois cliques no `Zelda-Ocarina-of-Time-Save-Editor.bat`. Abre uma janela preta (deixe aberta) e o editor aparece no navegador.
+2. Dê dois cliques no `Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat`. Abre uma janela preta (deixe aberta) e o editor aparece no navegador.
 3. Clique na pasta de saves encontrada ou localize manualmente (**Procurar o progress.sav…** ou cole o caminho).
 4. **Escolha o slot.** Compare corações, rupias, local e data com o que o jogo mostra. O "Slot 1" do jogo pode ser a pasta `slot_00`.
 5. Edite e clique em **Salvar no jogo**.

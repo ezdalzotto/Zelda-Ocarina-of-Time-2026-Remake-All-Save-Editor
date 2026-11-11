@@ -1,12 +1,12 @@
 #PS_BEGIN
-# Zelda Ocarina of Time Save Editor - local helper
+# Zelda Ocarina of Time 2026 Remake Save Editor - local helper
 # Author: Ernani Zanandrea Dalzotto - https://github.com/ezdalzotto
 # Modifications are allowed as long as credit is given to the author.
 #
 # Serves the editor on http://127.0.0.1 and reads/writes the game's save files
 # (progress.sav, caption.sav, option.sav). Browsers cannot write inside AppData, this helper can.
 $ErrorActionPreference = 'Stop'
-try { $Host.UI.RawUI.WindowTitle = 'Zelda Ocarina of Time Save Editor v1.0 - keep this window open' } catch { }
+try { $Host.UI.RawUI.WindowTitle = 'Zelda Ocarina of Time 2026 Remake Save Editor v1.0 - keep this window open' } catch { }
 
 $self = $env:OOT_SELF
 $raw = [IO.File]::ReadAllText($self, [Text.Encoding]::UTF8)
@@ -347,7 +347,7 @@ try {
   Find-Roots
   $url = 'http://127.0.0.1:' + $port + '/#t=' + $token
   Write-Host ''
-  Write-Host '  Zelda Ocarina of Time Save Editor v1.0'
+  Write-Host '  Zelda Ocarina of Time 2026 Remake Save Editor v1.0'
   Write-Host '  by Ernani Zanandrea Dalzotto - https://github.com/ezdalzotto'
   Write-Host '  ------------------------------------------------------------'
   Write-Host ('  Save folders found: ' + $roots.Count)
