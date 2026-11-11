@@ -1,0 +1,1405 @@
+<!doctype html>
+<!--
+  Zelda Ocarina of Time Save Editor
+  Author: Ernani Zanandrea Dalzotto - https://github.com/ezdalzotto
+  Modifications are allowed as long as credit is given to the author.
+  Unofficial fan tool, not affiliated with Nintendo.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Ernani Zanandrea Dalzotto (https://github.com/ezdalzotto)">
+<title>Zelda Ocarina of Time Save Editor</title>
+<style>
+:root{
+  --bg:#0d1714; --panel:#14231e; --panel2:#1a2e27; --line:#2f4a3f; --text:#e9f1e6; --muted:#9fb5a8;
+  --gold:#e2c27a; --gold2:#f3dca3; --red:#ff9f8f; --green:#8fe0a6; --chg:#3a3218;
+  color-scheme:dark; font:15px/1.5 "Segoe UI",system-ui,sans-serif; background:var(--bg); color:var(--text);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+a{color:var(--gold2)}
+body{margin:0;min-height:100vh;background:radial-gradient(1200px 600px at 80% -10%,#1f3a2c 0,transparent 60%),var(--bg)}
+header.top{display:flex;align-items:center;gap:12px;padding:10px 22px;border-bottom:1px solid var(--line);background:rgba(13,23,20,.92);position:sticky;top:0;z-index:5;backdrop-filter:blur(6px);flex-wrap:wrap}
+.tri{width:30px;height:26px;flex:none}
+header.top h1{font-size:1.02rem;margin:0;font-weight:700;line-height:1.25;min-width:0;flex:0 1 auto;overflow:hidden}
+header.top h1 small{display:block;font-size:.76rem;color:var(--muted);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header.top h1 small a{color:var(--muted)}
+header.top .sp{flex:1}
+#slotbox select{width:260px;max-width:30vw}
+#changes{color:var(--gold2);font-size:.85rem;white-space:nowrap}
+header.top button{white-space:nowrap}
+.lang{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.lang button{border:0;border-radius:0;padding:5px 10px;background:transparent;font-size:.85rem}
+.lang button.on{background:var(--gold);color:#17221b;font-weight:700}
+button,select,input{font:inherit;color:inherit}
+button{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 13px;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--gold)}
+button:disabled{opacity:.45;cursor:default}
+button.primary{background:var(--gold);color:#17221b;border-color:var(--gold);font-weight:700}
+button.primary:hover:not(:disabled){background:var(--gold2)}
+button.big{padding:11px 20px;font-size:1.03rem}
+button.small{padding:4px 9px;font-size:.85rem}
+input[type=number],input[type=text],select{background:#0f1c18;border:1px solid var(--line);border-radius:7px;padding:6px 9px;width:100%}
+input:focus,select:focus{outline:2px solid var(--gold);outline-offset:-1px}
+input[type=checkbox]{accent-color:var(--gold);width:17px;height:17px;vertical-align:middle}
+main{max-width:1220px;margin:0 auto;padding:22px}
+.landing{max-width:860px;margin:24px auto}
+.box{border:1px solid var(--line);border-radius:16px;padding:26px 24px;background:var(--panel);text-align:center}
+.box h2{margin:0 0 6px;font-size:1.3rem}
+.box p{color:var(--muted);margin:0 0 16px}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.or{color:var(--muted);margin:18px 0 8px;font-size:.88rem}
+.pathrow{display:flex;gap:8px;text-align:left}
+.pathrow input{flex:1}
+.err{color:var(--red)} .ok{color:var(--green)}
+#landMsg{margin-top:12px;min-height:1.3em}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-top:6px;text-align:left}
+.slotcard{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:0;overflow:hidden;cursor:pointer;text-align:left}
+.slotcard:hover{border-color:var(--gold)}
+.slotcard img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#0b1512}
+.slotcard .in{padding:10px 12px}
+.slotcard b{font-size:1.05rem}
+.slotcard .meta{color:var(--muted);font-size:.85rem}
+.tag{display:inline-block;font-size:.72rem;padding:1px 7px;border-radius:99px;border:1px solid var(--line);margin:4px 4px 0 0;color:var(--muted)}
+.tag.gold{border-color:var(--gold);color:var(--gold2)}
+.layout{display:grid;grid-template-columns:210px 1fr;gap:20px}
+nav.tabs{display:flex;flex-direction:column;gap:3px;position:sticky;top:84px;align-self:start}
+nav.tabs button{text-align:left;background:transparent;border-color:transparent}
+nav.tabs button.on{background:var(--panel2);border-color:var(--line);color:var(--gold2);font-weight:650}
+nav.tabs hr{border:0;border-top:1px solid var(--line);margin:6px 0}
+section.tab{display:none} section.tab.on{display:block}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.card h2{margin:0 0 4px;font-size:1.1rem}
+.card p.sub{margin:0 0 14px;color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px 14px}
+.checks label{display:flex;gap:8px;align-items:center;padding:5px 8px;border-radius:7px}
+.checks label.chg{background:var(--chg)}
+label.f{display:block;font-weight:600;font-size:.92rem}
+label.f input,label.f select{margin-top:4px}
+label.f small{display:block;color:var(--muted);font-weight:400;font-size:.8rem;margin-top:3px}
+label.f.chg input,label.f.chg select{border-color:var(--gold);background:var(--chg)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.overview{display:grid;grid-template-columns:minmax(260px,420px) 1fr;gap:20px;align-items:start}
+.overview img{width:100%;border-radius:10px;border:1px solid var(--line)}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:0}
+dt{color:var(--muted)} dd{margin:0;overflow-wrap:anywhere}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{position:sticky;top:0;background:var(--panel);z-index:1;color:var(--muted);font-weight:600}
+tr.chg td{background:var(--chg)}
+td code,.mono{font-family:Consolas,"Cascadia Mono",monospace;font-size:.83rem;color:#cfe0d4;overflow-wrap:anywhere}
+td input[type=text],td input[type=number]{padding:4px 7px;max-width:260px}
+.scroll{max-height:580px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.pager{display:flex;align-items:center;gap:10px;margin-top:10px;color:var(--muted);font-size:.88rem}
+.warn{background:#3a2a17;border:1px solid #7a5a2a;color:#f6d9a8;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:.9rem}
+.info{background:#17302a;border:1px solid #2f6b55;color:#cdeedd;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:.9rem}
+.bottle{display:grid;grid-template-columns:110px 110px 1fr;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.bottle:last-child{border-bottom:0}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--gold);padding:10px 18px;border-radius:10px;display:none;z-index:9;max-width:92vw;box-shadow:0 6px 30px #0008;white-space:pre-line;overflow-wrap:anywhere}
+footer{color:var(--muted);font-size:.8rem;text-align:center;padding:22px}
+header.top{flex-wrap:nowrap}
+@media (max-width:1100px){header.top{flex-wrap:wrap}}
+@media (max-width:860px){.layout{grid-template-columns:1fr}nav.tabs{flex-direction:row;flex-wrap:wrap;position:static}nav.tabs hr{display:none}.overview{grid-template-columns:1fr}.filters{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top">
+  <svg class="tri" viewBox="0 0 60 52" aria-hidden="true"><g fill="#e2c27a"><path d="M30 0 45 26H15z"/><path d="M15 26 30 52H0z"/><path d="M45 26 60 52H30z"/></g></svg>
+  <h1>Zelda Ocarina of Time Save Editor <span style="font-weight:400;color:var(--muted);font-size:.8rem">v1.0</span><small><span data-t="by"></span> Ernani Zanandrea Dalzotto · <a href="https://github.com/ezdalzotto" target="_blank" rel="noopener">github.com/ezdalzotto</a> · <span id="folderName"></span></small></h1>
+  <span class="sp"></span>
+  <span id="slotbox" hidden><select id="slot" aria-label="Slot"></select></span>
+  <span id="changes"></span>
+  <button id="btnUndo" hidden data-t="undo"></button>
+  <button id="btnSave" class="primary" hidden data-t="save"></button>
+  <div class="lang" role="group" aria-label="Language"><button id="langEn" class="on">EN</button><button id="langPt">PT</button></div>
+</header>
+
+<main>
+<div id="landing" class="landing">
+  <!-- Pasta de saves (ajudante) -->
+  <div id="folderBox" class="box" hidden>
+    <h2 id="folderTitle"></h2>
+    <p id="folderText"></p>
+    <div class="btnrow" id="folderDirs" style="flex-direction:column;align-items:stretch"></div>
+    <p class="sub" id="folderCheck" style="margin-top:10px;font-size:.88rem"></p>
+    <div class="or" data-t="orManual"></div>
+    <div class="btnrow"><button id="btnBrowse" class="big" data-t="browse"></button></div>
+    <div class="or" data-t="orPaste"></div>
+    <div class="pathrow"><input type="text" id="customPath" placeholder="C:\Users\...\AppData\Roaming\eden\nand\user\save\0000000000000000\...\0400486024DEC000"><button id="customGo" class="primary" data-t="useFolder"></button></div>
+    <div id="landMsg"></div>
+    <div class="or" data-t="orManualFiles"></div>
+    <div class="btnrow"><button id="btnManual2" class="small" data-t="manualBtn"></button></div>
+  </div>
+  <div id="emuWarnLand" hidden style="margin-bottom:12px"></div>
+  <!-- Escolha do slot -->
+  <div id="slotBox" class="box" hidden>
+    <h2 data-t="pickSlotTitle"></h2>
+    <p data-t="pickSlotText"></p>
+    <div class="info" style="text-align:left" data-t="compareHint"></div>
+    <div id="slotWarn" class="warn" hidden style="text-align:left;white-space:pre-line"></div>
+    <div class="slots" id="slotCards"></div>
+    <div class="btnrow" style="margin-top:16px"><button id="btnOtherFolder" class="small" data-t="changeFolder"></button></div>
+  </div>
+  <!-- Sem ajudante: modo manual -->
+  <div id="manualBox" class="box" hidden>
+    <h2 data-t="manualTitle"></h2>
+    <p data-t="manualText"></p>
+    <div class="btnrow"><button id="btnFiles" class="primary big" data-t="pickFiles"></button></div>
+    <input type="file" id="fileInput" multiple accept=".sav" hidden>
+    <div id="manualMsg" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<div id="app" class="layout" hidden>
+  <nav class="tabs" id="tabs">
+    <button data-tab="t-resumo" class="on" data-t="tabSummary"></button>
+    <button data-tab="t-status" data-t="tabStatus"></button>
+    <button data-tab="t-supri" data-t="tabSupplies"></button>
+    <button data-tab="t-itens" data-t="tabItems"></button>
+    <button data-tab="t-cancoes" data-t="tabSongs"></button>
+    <button data-tab="t-garrafas" data-t="tabBottles"></button>
+    <button data-tab="t-chaves" data-t="tabKeys"></button>
+    <button data-tab="t-locais" data-t="tabLocs"></button>
+    <button data-tab="t-recordes" data-t="tabRecords"></button>
+    <hr>
+    <button data-tab="t-flags" data-t="tabFlags"></button>
+    <button data-tab="t-avanc" data-t="tabAdv"></button>
+    <button data-tab="t-opcoes" data-t="tabOptions"></button>
+    <button data-tab="t-backups" data-t="tabBackups"></button>
+    <button data-tab="t-sobre" data-t="tabAbout"></button>
+  </nav>
+  <div>
+    <div id="emuWarn" hidden></div>
+    <div id="warnings"></div>
+
+    <section class="tab on" id="t-resumo">
+      <div class="card">
+        <h2 data-t="summaryTitle"></h2>
+        <p class="sub mono" id="srcinfo"></p>
+        <div class="overview"><img id="thumb" alt=""><dl id="overview"></dl></div>
+      </div>
+      <details class="card" id="diag" hidden>
+        <summary style="cursor:pointer;font-weight:700" data-t="filesTitle"></summary>
+        <div class="scroll" style="margin-top:12px"><table><thead><tr><th data-t="thFiles"></th><th data-t="thSize"></th><th data-t="thModified"></th></tr></thead><tbody id="diagRows"></tbody></table></div>
+      </details>
+      <div class="card">
+        <h2 data-t="shortcuts"></h2>
+        <p class="sub" data-t="shortcutsText"></p>
+        <div class="row">
+          <button id="qFull" data-t="qFull"></button>
+          <button id="qRupees" data-t="qRupees"></button>
+          <button id="qAmmo" data-t="qAmmo"></button>
+          <button id="qBags" data-t="qBags"></button>
+          <button id="qSongs" data-t="qSongs"></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab" id="t-status">
+      <div class="card">
+        <h2 data-t="rupees"></h2>
+        <div class="grid">
+          <label class="f" id="lf-wallet"><span data-t="wallet"></span><select id="wallet"></select></label>
+          <label class="f" id="lf-rupees"><span data-t="rupees"></span><input type="number" id="rupees" min="0" step="1"><small id="rupeesHint"></small></label>
+        </div>
+      </div>
+      <div class="card">
+        <h2 data-t="lifeMagic"></h2>
+        <div class="grid">
+          <label class="f" id="lf-maxHearts"><span data-t="maxHearts"></span><input type="number" id="maxHearts" min="3" max="20" step="1"><small data-t="maxHeartsHint"></small></label>
+          <label class="f" id="lf-hearts"><span data-t="curHearts"></span><input type="number" id="hearts" min="0" step="0.25"><small data-t="curHeartsHint"></small></label>
+          <label class="f" id="lf-maxMagic"><span data-t="magicMeter"></span><select id="maxMagic"></select><small data-t="magicMeterHint"></small></label>
+          <label class="f" id="lf-magic"><span data-t="curMagic"></span><input type="number" id="magic" min="0" step="0.1"><small id="magicHint"></small></label>
+        </div>
+      </div>
+      <div class="card"><h2 data-t="other"></h2><div class="grid" id="miscGrid"></div></div>
+    </section>
+
+    <section class="tab" id="t-supri">
+      <div class="card"><h2 data-t="capTitle"></h2><p class="sub" data-t="capText"></p><div class="grid" id="capGrid"></div></div>
+      <div class="card"><h2 data-t="ammoTitle"></h2><div class="grid" id="supGrid"></div></div>
+    </section>
+
+    <section class="tab" id="t-itens">
+      <div class="card">
+        <h2 data-t="tabItems"></h2>
+        <p class="sub" data-t="itemsText"></p>
+        <div class="filters"><input type="text" id="itemSearch" data-tp="itemSearch"><select id="itemCat"></select><select id="itemStatus"></select></div>
+        <div class="row" style="margin-bottom:10px"><button class="small" id="addAllShown" data-t="checkAllListed"></button></div>
+        <div class="scroll"><table><thead><tr><th data-t="thItem"></th><th data-t="thGroup"></th><th data-t="thOwn"></th></tr></thead><tbody id="itemRows"></tbody></table></div>
+      </div>
+    </section>
+
+    <section class="tab" id="t-cancoes">
+      <div class="card"><h2 data-t="songsTitle"></h2><p class="sub" data-t="songsText"></p><div class="checks" id="songList"></div></div>
+    </section>
+
+    <section class="tab" id="t-garrafas">
+      <div class="card"><h2 data-t="tabBottles"></h2><p class="sub" data-t="bottlesText"></p><div id="bottleList"></div></div>
+    </section>
+
+    <section class="tab" id="t-chaves">
+      <div class="card"><h2 data-t="keysTitle"></h2><p class="sub" data-t="keysText"></p><div class="grid" id="keyGrid"></div></div>
+      <div class="info" data-t="mapsInfo"></div>
+    </section>
+
+    <section class="tab" id="t-locais">
+      <div class="card">
+        <h2 data-t="tabLocs"></h2><p class="sub" data-t="locsText"></p>
+        <div class="row" style="margin-bottom:10px"><button class="small" id="allLocs" data-t="checkAll"></button></div>
+        <div class="checks" id="locList"></div>
+      </div>
+    </section>
+
+    <section class="tab" id="t-recordes">
+      <div class="card"><h2 data-t="tabRecords"></h2><p class="sub" data-t="recordsText"></p><div class="grid" id="recGrid"></div></div>
+    </section>
+
+    <section class="tab" id="t-flags">
+      <div class="card">
+        <h2 data-t="tabFlags"></h2><p class="sub" data-t="flagsText"></p>
+        <div class="filters"><input type="text" id="flagSearch" data-tp="flagSearch"><select id="flagCat"></select><select id="flagStatus"></select></div>
+        <div class="scroll"><table><thead><tr><th>Flag</th><th>Hash</th><th data-t="thValue"></th></tr></thead><tbody id="flagRows"></tbody></table></div>
+        <div class="pager"><button class="small" id="flagPrev">◀</button><span id="flagCount"></span><button class="small" id="flagNext">▶</button></div>
+      </div>
+    </section>
+
+    <section class="tab" id="t-avanc">
+      <div class="card">
+        <h2 data-t="advTitle"></h2><p class="sub" data-t="advText"></p>
+        <div class="filters"><input type="text" id="advSearch" data-tp="advSearch"><select id="advType"></select><select id="advNamed"></select></div>
+        <div class="scroll"><table><thead><tr><th data-t="thName"></th><th>Hash</th><th data-t="thType"></th><th data-t="thValue"></th></tr></thead><tbody id="advRows"></tbody></table></div>
+        <div class="pager"><button class="small" id="advPrev">◀</button><span id="advCount"></span><button class="small" id="advNext">▶</button></div>
+      </div>
+    </section>
+
+    <section class="tab" id="t-opcoes">
+      <div class="card">
+        <h2 data-t="optTitle"></h2><p class="sub" id="optInfo"></p>
+        <div class="grid"><label class="f" id="lf-voice"><span data-t="voiceLang"></span><select id="voice"></select></label></div>
+      </div>
+    </section>
+
+    <section class="tab" id="t-backups">
+      <div class="card">
+        <h2 data-t="backupsTitle"></h2>
+        <p class="sub" id="bkText"></p>
+        <div class="row" id="bkFolderRow" style="margin-bottom:10px"><button class="small" id="openBkFolder" data-t="openBackupFolder"></button><span class="mono" id="bkFolderPath"></span></div>
+        <div class="scroll"><table><thead><tr><th data-t="thDate"></th><th data-t="thFiles"></th><th></th></tr></thead><tbody id="bkRows"></tbody></table></div>
+      </div>
+    </section>
+
+    <section class="tab" id="t-sobre">
+      <div class="card">
+        <h2>Zelda Ocarina of Time Save Editor</h2>
+        <p><span data-t="createdBy"></span> <b>Ernani Zanandrea Dalzotto</b> — <a href="https://github.com/ezdalzotto" target="_blank" rel="noopener">https://github.com/ezdalzotto</a></p>
+        <p data-t="license"></p>
+        <p class="sub" data-t="aboutTech"></p>
+        <p class="sub" data-t="disclaimer"></p>
+      </div>
+    </section>
+  </div>
+</div>
+</main>
+<div id="toast"></div>
+<footer>Zelda Ocarina of Time Save Editor · <span data-t="by"></span> Ernani Zanandrea Dalzotto · <a href="https://github.com/ezdalzotto" target="_blank" rel="noopener">github.com/ezdalzotto</a> · <span data-t="footerNote"></span></footer>
+
+<script id="catalog" type="application/json">/*CATALOG*/</script>
+<script id="i18n">
+'use strict';
+/* Textos da interface: [inglês, português]. O editor sempre abre em inglês. */
+const I18N = {
+  by: ['by', 'por'],
+  undo: ['Undo', 'Desfazer'],
+  save: ['Save to game', 'Salvar no jogo'],
+  changesNone: ['No changes', 'Sem alterações'],
+  changesN: ['{0} unsaved change(s)', '{0} alteração(ões) não salva(s)'],
+  viaHelper: ['local helper', 'ajudante local'],
+  manualMode: ['manual mode', 'modo manual'],
+  searching: ['Looking for the game saves…', 'Procurando os saves do jogo…'],
+  chooseFolder: ['Choose the save folder', 'Escolha a pasta de saves'],
+  foundOne: ['Save folder found. Click it to open:', 'Pasta de saves encontrada. Clique para abrir:'],
+  foundMany: ['More than one emulator/user has saves for this game:', 'Mais de um emulador/usuário tem saves deste jogo:'],
+  notFound: ['Save folder not found automatically', 'Não achei a pasta de saves automaticamente'],
+  notFoundText: ['I looked in AppData for Eden, yuzu, suyu, sudachi, citron and torzu. Locate it manually below.', 'Procurei no AppData do Eden, yuzu, suyu, sudachi, citron e torzu. Localize manualmente abaixo.'],
+  orManual: ['Different install or folder? Locate it manually:', 'Instalação ou pasta diferente? Localize manualmente:'],
+  browse: ['Browse for progress.sav…', 'Procurar o progress.sav…'],
+  orPaste: ['or paste the path of the save folder (0400486024DEC000), a slot folder or progress.sav:', 'ou cole o caminho da pasta de saves (0400486024DEC000), de um slot ou do progress.sav:'],
+  useFolder: ['Use this path', 'Usar este caminho'],
+  browseHint: ['A file window opened (it may be behind the browser). Select progress.sav inside the slot folder.', 'Uma janela de arquivos abriu (pode estar atrás do navegador). Selecione o progress.sav dentro da pasta do slot.'],
+  helperDown: ['The helper is not responding', 'O ajudante não respondeu'],
+  helperDownText: ['Close this tab and open the .bat file again. ({0})', 'Feche esta aba e abra o arquivo .bat de novo. ({0})'],
+  reading: ['Reading…', 'Lendo…'],
+  noSaveFound: ['No progress.sav + caption.sav found in this folder.', 'Não encontrei progress.sav + caption.sav nesta pasta.'],
+  pickSlotTitle: ['Choose the slot to edit', 'Escolha o slot que vai editar'],
+  pickSlotText: ['Pick the same slot you load in the game — each slot is a separate save. Check the picture, date and place.', 'Escolha o mesmo slot que você carrega no jogo — cada slot é um save separado. Confira a imagem, a data e o local.'],
+  changeFolder: ['Change folder', 'Trocar pasta'],
+  autosave: ['autosave', 'automático'],
+  manualSave: ['manual save', 'save manual'],
+  newest: ['most recent', 'mais recente'],
+  lastEdited: ['last edited here', 'último editado aqui'],
+  manualTitle: ['Open the save files', 'Abra os arquivos do save'],
+  manualText: ['This page was opened without the helper, so it cannot write into the game folder. Run Zelda-Ocarina-of-Time-Save-Editor.bat to save directly. Here you can pick progress.sav and caption.sav (and option.sav); the edited files will be downloaded.', 'Esta página foi aberta sem o ajudante, então não consegue gravar na pasta do jogo. Rode o Zelda-Ocarina-of-Time-Save-Editor.bat para salvar direto. Aqui você pode escolher progress.sav e caption.sav (e option.sav); os arquivos editados serão baixados.'],
+  pickFiles: ['Choose files…', 'Escolher arquivos…'],
+  tabSummary: ['Summary', 'Resumo'], tabStatus: ['Rupees & life', 'Rupias e vida'], tabSupplies: ['Ammo & bags', 'Munição e bolsas'],
+  tabItems: ['Items & equipment', 'Itens e equipamentos'], tabSongs: ['Songs', 'Canções'], tabBottles: ['Bottles', 'Garrafas'],
+  tabKeys: ['Keys', 'Chaves'], tabLocs: ['Visited places', 'Locais visitados'], tabRecords: ['Records & counters', 'Recordes e contadores'],
+  tabFlags: ['Events & flags', 'Eventos e flags'], tabAdv: ['Advanced', 'Avançado'], tabOptions: ['Options', 'Opções'],
+  tabBackups: ['Backups', 'Backups'], tabAbout: ['About', 'Sobre'],
+  summaryTitle: ['Slot summary', 'Resumo do slot'],
+  savedAt: ['Saved', 'Salvo em'], at: ['at', 'às'], location: ['Location', 'Local'], progress: ['Progress', 'Progresso'],
+  rupees: ['Rupees', 'Rupias'], hearts: ['Hearts', 'Corações'], magic: ['Magic', 'Magia'], mp: ['MP', 'PM'],
+  goldSkulltulas: ['Gold Skulltulas', 'Skulltulas douradas'], items: ['Items', 'Itens'], songs: ['Songs', 'Canções'],
+  equipped: ['Equipped', 'Equipado'], of: ['of', 'de'],
+  shortcuts: ['Shortcuts', 'Atalhos'],
+  shortcutsText: ['Apply several changes at once. Nothing is written until you click “Save to game”.', 'Aplicam várias mudanças de uma vez. Nada é gravado até você clicar em “Salvar no jogo”.'],
+  qFull: ['Full hearts & magic', 'Corações e magia cheios'], qRupees: ['Fill wallet', 'Encher carteira'], qAmmo: ['Refill ammo', 'Encher munição'],
+  qBags: ['Max bags & quiver', 'Bolsas e aljava no máximo'], qSongs: ['All songs', 'Todas as canções'],
+  tFull: ['Hearts and magic filled.', 'Corações e magia cheios.'], tRupees: ['Wallet filled.', 'Carteira cheia.'],
+  tAmmo: ['Ammo refilled (current capacity).', 'Munição cheia (capacidade atual).'], tBags: ['Bags and quiver at max, ammo full.', 'Bolsas e aljava no máximo, munição cheia.'],
+  tSongs: ['All songs checked.', 'Todas as canções marcadas.'], tItems: ['{0} item(s) checked.', '{0} item(ns) marcado(s).'],
+  wallet: ['Wallet', 'Carteira'], maxN: ['Max {0}', 'Máximo {0}'],
+  lifeMagic: ['Life & magic', 'Vida e magia'], maxHearts: ['Heart containers', 'Corações máximos'], maxHeartsHint: ['3 to 20', 'De 3 a 20'],
+  curHearts: ['Current hearts', 'Corações atuais'], curHeartsHint: ['In ¼ steps', 'Em passos de ¼'],
+  magicMeter: ['Magic meter', 'Medidor de magia'], magicMeterHint: ['Can only be kept or upgraded', 'Só é possível manter ou melhorar'],
+  curMagic: ['Current magic', 'Magia atual'], upToMp: ['Up to {0} MP', 'Até {0} PM'], noMagic: ['No magic meter', 'Sem medidor de magia'],
+  other: ['Other', 'Outros'], giantLife: ['Giant’s Knife durability', 'Durabilidade da Faca do Gigante'], giantLifeHint: ['Hits left before it breaks', 'Golpes restantes antes de quebrar'],
+  capTitle: ['Bag capacity', 'Capacidade das bolsas'],
+  capText: ['Pick a bigger size to get the upgrade. Typing an amount above the capacity also upgrades the bag automatically.', 'Escolha um tamanho maior para receber a melhoria. Digitar uma quantidade acima da capacidade também melhora a bolsa automaticamente.'],
+  tierSmall: ['Small', 'Pequena'], tierMedium: ['Medium', 'Média'], tierLarge: ['Large', 'Grande'],
+  current: ['current', 'atual'], owned: ['owned', 'possuída'], none: ['None', 'Não possui'],
+  ammoTitle: ['Ammo & collectibles', 'Munição e coletáveis'],
+  capHint: ['Current capacity {0} · max {1}', 'Capacidade atual {0} · máx. {1}'],
+  itemsText: ['Check what you want to own. The matching “obtained” flags are set when saving. Bags, wallets and ammo are in their own tabs.', 'Marque o que você quer ter. As flags de “obtido” são marcadas ao salvar. Bolsas, carteiras e munição ficam nas abas próprias.'],
+  itemSearch: ['Search (English or Portuguese name)…', 'Buscar (nome em inglês ou português)…'],
+  allGroups: ['All groups', 'Todos os grupos'], all: ['All', 'Todos'], notOwned: ['Not owned', 'Não possuídos'], ownedP: ['Owned', 'Possuídos'],
+  checkAllListed: ['Check all listed', 'Marcar todos os listados'], thItem: ['Item', 'Item'], thGroup: ['Group', 'Grupo'], thOwn: ['Own', 'Possuir'],
+  noItems: ['No items found.', 'Nenhum item encontrado.'],
+  songsTitle: ['Ocarina songs', 'Canções da ocarina'],
+  songsText: ['Marks the song as learned (“obtained” flag + get scene seen). You need an ocarina to play them.', 'Marca a canção como aprendida (flag “obtido” + cena de obtenção vista). É preciso ter uma ocarina para tocá-las.'],
+  bottlesText: ['Check to own the bottle and pick what is inside.', 'Marque para possuir a garrafa e escolha o conteúdo.'],
+  bottleN: ['Bottle {0}', 'Garrafa {0}'], own: ['own', 'possuir'], unknown: ['Unknown', 'Desconhecido'],
+  keysTitle: ['Small keys', 'Chaves pequenas'], keysText: ['How many keys you are carrying in each dungeon.', 'Quantas chaves você está carregando em cada masmorra.'], upTo: ['Up to {0}', 'Até {0}'],
+  mapsInfo: ['Dungeon maps, compasses and boss keys have not been identified in the save yet.', 'Mapas, bússolas e chaves-chefe das masmorras ainda não foram identificados no save.'],
+  locsText: ['Regions the game considers already visited.', 'Regiões que o jogo considera já visitadas.'], checkAll: ['Check all', 'Marcar todos'],
+  recordsText: ['Times are split into minutes, seconds and milliseconds, the way the game stores them.', 'Tempos estão separados em minutos, segundos e milissegundos, como o jogo guarda.'],
+  flagsText: ['Flags with a known name. Change with care: setting events out of order can break the story.', 'Flags com nome conhecido. Mude com cuidado: marcar eventos fora de ordem pode travar a história.'],
+  flagSearch: ['Search (e.g. IsGet, Kokiri)…', 'Buscar (ex.: IsGet, Kokiri)…'],
+  fcEvent: ['Cutscenes seen', 'Cenas assistidas'], fcTalk: ['Conversations', 'Conversas'], fcGet: ['Items obtained', 'Itens obtidos'], fcVisit: ['Places', 'Locais'], fcOther: ['Other', 'Outras'],
+  fsOn: ['Set', 'Marcadas'], fsOff: ['Not set', 'Desmarcadas'], fsChg: ['Changed', 'Alteradas'],
+  thValue: ['Value', 'Valor'], thName: ['Name', 'Nome'], thType: ['Type', 'Tipo'],
+  noFlags: ['No flags found.', 'Nenhuma flag encontrada.'], rangeOf: ['{0}–{1} of {2}', '{0}–{1} de {2}'],
+  advTitle: ['Advanced editor', 'Editor avançado'],
+  advText: ['All ~12,000 fields of progress.sav. Fields without a known name show only the hash. Wrong values can corrupt the save — backups are in the Backups tab.', 'Todos os ~12 mil campos do progress.sav. Campos sem nome aparecem só pelo hash. Valores errados podem corromper o save — os backups ficam na aba Backups.'],
+  advSearch: ['Name, hash (0x…) or value…', 'Nome, hash (0x…) ou valor…'], allTypes: ['All types', 'Todos os tipos'], namedOnly: ['Named only', 'Só com nome'], changedOnly: ['Changed', 'Alterados'],
+  noFields: ['No fields found.', 'Nenhum campo encontrado.'], badValue: ['Value not accepted: {0}', 'Valor não aceito: {0}'],
+  optTitle: ['Profile options (option.sav)', 'Opções do perfil (option.sav)'], voiceLang: ['Voice language', 'Idioma das vozes'],
+  optAll: ['Applies to the whole profile (all slots).', 'Vale para o perfil inteiro (todos os slots).'],
+  optMissing: ['option.sav was not found. It is in the 0400486024DEC000 folder.', 'option.sav não encontrado. Ele fica na pasta 0400486024DEC000.'],
+  backupsTitle: ['Automatic backups', 'Backups automáticos'],
+  bkTextHelper: ['Before every save, the original files are copied to your Downloads folder. “Restore” writes a copy back into the game folder (the current files are backed up first).', 'Antes de cada gravação, os arquivos originais são copiados para a sua pasta Downloads. “Restaurar” grava a cópia de volta na pasta do jogo (os arquivos atuais são guardados antes).'],
+  bkTextManual: ['In manual mode, the original files are downloaded (backup_*.sav) to your Downloads folder before the edited ones.', 'No modo manual, os arquivos originais são baixados (backup_*.sav) para a pasta Downloads antes dos editados.'],
+  openBackupFolder: ['Open backup folder', 'Abrir pasta de backups'], thDate: ['Date', 'Data'], thFiles: ['Files', 'Arquivos'],
+  restore: ['Restore', 'Restaurar'], noBackups: ['No backups yet. One is made automatically on the first save.', 'Nenhum backup ainda. Ele é criado automaticamente na primeira gravação.'],
+  confirmRestore: ['Restore the backup from {0}?\nThe current game files will be replaced (and backed up first).', 'Restaurar o backup de {0}?\nOs arquivos atuais do jogo serão substituídos (e guardados antes).'],
+  restored: ['Backup restored.', 'Backup restaurado.'], restoreErr: ['Restore failed: {0}', 'Erro ao restaurar: {0}'],
+  createdBy: ['Created by', 'Criado por'],
+  license: ['Free to use. Changes and redistribution are allowed as long as credit is given to Ernani Zanandrea Dalzotto (github.com/ezdalzotto).', 'Uso livre. Alterações e redistribuição são permitidas desde que seja dado crédito a Ernani Zanandrea Dalzotto (github.com/ezdalzotto).'],
+  aboutTech: ['Works with the save files of the remake (progress.sav, caption.sav, option.sav). Field names are MurmurHash3 hashes; everything runs on your computer and nothing is sent to the internet.', 'Funciona com os arquivos de save do remake (progress.sav, caption.sav, option.sav). Os nomes dos campos são hashes MurmurHash3; tudo roda no seu computador e nada é enviado para a internet.'],
+  disclaimer: ['Unofficial fan tool, not affiliated with Nintendo. Always keep a backup of your save.', 'Ferramenta de fã, não oficial e sem ligação com a Nintendo. Sempre guarde um backup do seu save.'],
+  footerNote: ['credit required for modifications', 'crédito obrigatório em modificações'],
+  wManual: ['Manual mode: saving downloads the files and you have to copy them into the slot folder. To save directly, run the .bat file.', 'Modo manual: ao salvar, os arquivos são baixados e você precisa copiá-los para a pasta do slot. Para salvar direto, rode o arquivo .bat.'],
+  wVersion: ['Save version differs from the tested one ({0}). Use with care.', 'Versão do save diferente da testada ({0}). Use com cuidado.'],
+  wWallet: ['Unknown wallet in the save.', 'Carteira desconhecida no save.'], wLimit: ['Rupee limit does not match the wallet.', 'Limite de rupias não bate com a carteira.'],
+  wWalletOwned: ['The current wallet is not marked as owned.', 'A carteira atual não está marcada como possuída.'], wRupees: ['Rupee count out of range.', 'Quantidade de rupias fora do limite.'],
+  wBottles: ['Bottle fields are inconsistent.', 'Campos de garrafa inconsistentes.'],
+  wLegacy: ['Magic in this save was written by an old editor with the wrong scale; it will be fixed when saving.', 'A magia deste save foi gravada por um editor antigo com escala errada; será corrigida ao salvar.'],
+  wMissing: ['{0} item(s) are missing the “obtained” flag; they will be set when saving.', '{0} item(ns) estão sem a flag de “obtido”; serão marcadas ao salvar.'],
+  nothingToSave: ['Nothing to save.', 'Nada para salvar.'],
+  confirmIssues: ['Warning:\n• {0}\n\nSave anyway?', 'Atenção:\n• {0}\n\nSalvar mesmo assim?'],
+  diskChanged: ['{0} changed on disk after you opened it (did the game save again?).\nOverwrite anyway?', '{0} mudou no disco depois que você abriu (o jogo salvou de novo?).\nSobrescrever mesmo assim?'],
+  savedHelper: ['Saved and verified on disk:\n{0}\nBackup of the originals: Downloads\\Zelda OoT Save Editor - Backups', 'Salvo e conferido no disco:\n{0}\nBackup dos originais: Downloads\\Zelda OoT Save Editor - Backups'],
+  savedManual: ['Files downloaded (backup_*.sav = originals). Copy progress.sav and caption.sav back into the slot folder you took them from, replacing the old ones. If the browser renamed them (e.g. “progress (1).sav”), rename them back to progress.sav / caption.sav first.', 'Arquivos baixados (backup_*.sav = originais). Copie progress.sav e caption.sav de volta para a pasta do slot de onde você os tirou, substituindo os antigos. Se o navegador renomeou (ex.: “progress (1).sav”), renomeie de volta para progress.sav / caption.sav antes.'],
+  saveErr: ['Save failed: {0}', 'Erro ao salvar: {0}'],
+  confirmUndo: ['Discard the unsaved changes of this slot?', 'Descartar as alterações não salvas deste slot?'],
+  confirmSwitch: ['There are unsaved changes in this slot. Switch anyway?', 'Há alterações não salvas neste slot. Trocar mesmo assim?'],
+  eHearts: ['Heart containers: 3 to 20.', 'Corações máximos: entre 3 e 20.'],
+  eCurHearts: ['Current hearts: 0 to the maximum, in ¼ steps.', 'Corações atuais: entre 0 e o máximo, em passos de ¼.'],
+  eMeter: ['Invalid magic meter.', 'Medidor de magia inválido.'], eMagic: ['Current magic: 0 to {0}.', 'Magia atual: entre 0 e {0}.'],
+  eRange: ['{0}: 0 to {1}.', '{0}: entre 0 e {1}.'], eInvalid: ['Invalid value.', 'Valor inválido.'], eTooLong: ['Text too long (max {0} bytes).', 'Texto longo demais (máx. {0} bytes).'],
+  ePermission: ['No permission to write the folder.', 'Sem permissão para gravar na pasta.'],
+  emuGame: ['The game seems to be OPEN in {0} (“{1}”). Stop the emulation (Emulation → Stop) before saving: the game keeps the save in memory and overwrites the file when it saves again or quits.', 'O jogo parece estar ABERTO no {0} (“{1}”). Pare a emulação (Emulação → Parar) antes de salvar: o jogo guarda o save na memória e grava por cima do arquivo quando salva de novo ou ao sair.'],
+  emuOpen: ['{0} is open. That is fine as long as no game is running — the game must be closed while you save, then started again.', '{0} está aberto. Tudo bem, desde que nenhum jogo esteja rodando — o jogo precisa estar fechado na hora de salvar e ser aberto de novo depois.'],
+  gameRunningConfirm: ['The game seems to be running in {0}.\nIf you save now, the game will overwrite your changes. Stop the emulation first.\n\nSave anyway?', 'O jogo parece estar rodando no {0}.\nSe salvar agora, o jogo vai sobrescrever suas alterações. Pare a emulação antes.\n\nSalvar mesmo assim?'],
+  filesTitle: ['Files in the game folder (diagnostics)', 'Arquivos na pasta do jogo (diagnóstico)'],
+  thSize: ['Size', 'Tamanho'], thModified: ['Modified', 'Modificado'],
+  dupSlots: ['Warning: more than one folder named {0} was found ({1}). Make sure you pick the one the game uses.', 'Atenção: encontrei mais de uma pasta chamada {0} ({1}). Confira qual delas o jogo usa.'],
+  fileModified: ['file modified {0}', 'arquivo modificado {0}'],
+  oldHelper: ['An OLD version of the helper is answering. Close ALL black editor windows, then open Zelda-Ocarina-of-Time-Save-Editor.bat again.', 'Uma versão ANTIGA do ajudante está respondendo. Feche TODAS as janelas pretas do editor e abra de novo o Zelda-Ocarina-of-Time-Save-Editor.bat.'],
+  checkFolder: ['Check that this is the same folder Eden uses: in Eden, right-click the game → Open Save Data Location.', 'Confira se é a mesma pasta que o Eden usa: no Eden, clique com o botão direito no jogo → Abrir local dos dados salvos.'],
+  newestSave: ['latest save {0}', 'último save {0}'],
+  orManualFiles: ['Or edit files manually (like the first version): pick progress.sav and caption.sav, and the edited files are downloaded for you to copy back.', 'Ou edite os arquivos manualmente (como na primeira versão): escolha progress.sav e caption.sav e os editados são baixados para você copiar de volta.'],
+  manualBtn: ['Pick files manually…', 'Escolher arquivos manualmente…'],
+  compareHint: ['Compare with the game: open the slot in the game and check hearts, rupees and place. If they do not match, it is not the slot/folder the game uses.', 'Compare com o jogo: abra o slot no jogo e confira corações, rupias e local. Se não baterem, não é o slot/pasta que o jogo usa.'],
+  loadHint: ['Now start the game in the emulator and load {0}.', 'Agora abra o jogo no emulador e carregue o {0}.'],
+};
+let LANG = 'en';
+const t = (k, ...a) => { const e = I18N[k]; let s = e ? e[LANG === 'pt' ? 1 : 0] : k; a.forEach((v, i) => { s = s.split('{' + i + '}').join(v); }); return s; };
+const L = pair => Array.isArray(pair) ? pair[LANG === 'pt' ? 1 : 0] : pair;
+</script>
+<script id="core">
+'use strict';
+const MAGIC = 0x01020304, VERSION = 0x002D80EB;
+const PROGRESS_HDR = 0x175D8, SMALL_HDR = 0x2A0;
+const HEX = (n, w = 8) => '0x' + (n >>> 0).toString(16).toUpperCase().padStart(w, '0');
+const enc = new TextEncoder(), dec = new TextDecoder();
+
+/* Field names are stored as MurmurHash3 x86 32-bit hashes (seed 0). */
+function mm3(str) {
+  const d = enc.encode(str), n = d.length; let h = 0, i = 0;
+  const c1 = 0xcc9e2d51, c2 = 0x1b873593;
+  for (; i + 4 <= n; i += 4) {
+    let k = d[i] | d[i + 1] << 8 | d[i + 2] << 16 | d[i + 3] << 24;
+    k = Math.imul(k, c1); k = k << 15 | k >>> 17; k = Math.imul(k, c2);
+    h ^= k; h = h << 13 | h >>> 19; h = (Math.imul(h, 5) + 0xe6546b64) | 0;
+  }
+  let k = 0;
+  switch (n & 3) { case 3: k ^= d[i + 2] << 16; case 2: k ^= d[i + 1] << 8; case 1: k ^= d[i]; k = Math.imul(k, c1); k = k << 15 | k >>> 17; k = Math.imul(k, c2); h ^= k; }
+  h ^= n; h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); h ^= h >>> 16;
+  return h >>> 0;
+}
+
+function parseSave(bytes, expectedHdr) {
+  if (bytes.length < 48) throw Error('File too small.');
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const u32o = o => view.getUint32(o, true);
+  const magic = u32o(0), version = u32o(4), hdr = u32o(8);
+  if (magic !== MAGIC) throw Error('Not a save file of this format.');
+  if (expectedHdr && hdr !== expectedHdr) throw Error('Unexpected header size: ' + HEX(hdr));
+  if (hdr > bytes.length || hdr < 40) throw Error('Corrupted header.');
+  const fields = new Map();
+  for (let o = 40; o + 8 <= hdr; o += 8) {
+    const h = u32o(o);
+    if (!h) continue;
+    if (fields.has(h)) throw Error('Duplicated field: ' + HEX(h));
+    fields.set(h, o + 4);
+  }
+  const s = { bytes, view, fields, hdr, version };
+  s.has = h => fields.has(h);
+  s.at = h => { if (!fields.has(h)) throw Error('Missing field: ' + HEX(h)); return fields.get(h); };
+  s.u32 = h => view.getUint32(s.at(h), true);
+  s.int = h => view.getInt32(s.at(h), true);
+  s.f32 = h => view.getFloat32(s.at(h), true);
+  s.setInt = (h, v) => view.setInt32(s.at(h), v, true);
+  s.setU32 = (h, v) => view.setUint32(s.at(h), v >>> 0, true);
+  s.setF32 = (h, v) => view.setFloat32(s.at(h), v, true);
+  s.block = (h, len) => {
+    const o = view.getUint32(s.at(h), true);
+    if (o < hdr || o + len > bytes.length) throw Error('Invalid offset at ' + HEX(h));
+    return o;
+  };
+  s.text = (o, len) => { const r = bytes.subarray(o, o + len); const z = r.indexOf(0); return dec.decode(z < 0 ? r : r.subarray(0, z)); };
+  s.str = (h, len) => s.text(s.block(h, len), len);
+  s.setStr = (h, len, value) => {
+    const b = enc.encode(value);
+    if (b.length >= len) throw Error(t('eTooLong', len - 1));
+    const o = s.block(h, len); bytes.fill(0, o, o + len); bytes.set(b, o);
+  };
+  return s;
+}
+function classify(bytes) {
+  const s = parseSave(bytes);
+  if (s.hdr === PROGRESS_HDR) return 'progress';
+  if (s.hdr === SMALL_HDR && s.has(0x63696A32)) return 'caption';
+  if (s.hdr === SMALL_HDR && s.has(0xA2DCDC9D)) return 'option';
+  return null;
+}
+
+/* ============ Game data ============ */
+const wallets = [
+  { id: 'Item_Wallet_Small', stock: 0x1D74617E, limit: 200, label: ["Kokiri Wallet", 'Carteira Kokiri'] },
+  { id: 'Item_Wallet_Medium', stock: 0x2D2C874B, limit: 500, label: ["Adult's Wallet", 'Carteira de Adulto'] },
+  { id: 'Item_Wallet_Large', stock: 0xAFA4BB52, limit: 1000, label: ["Giant's Wallet", 'Carteira do Gigante'] },
+];
+const capGroups = [
+  { id: 'seeds', label: ['Deku Seed Bag', 'Bolsa de Sementes Deku'], hash: 0xAE8CC742, nameHash: 0xD732DD7F, actor: 'Item_BulletBag', tiers: [[30, 0xDC52ACAF], [40, 0x9A30A9E5], [50, 0x7B9673F5]] },
+  { id: 'nuts', label: ['Deku Nut Bag', 'Bolsa de Nozes Deku'], hash: 0x735B00F7, nameHash: 0x0DA3A7A7, actor: 'Item_NutBag', tiers: [[20, 0x19B80DBC], [30, 0xEAA1785E], [40, 0xD60E4B23]] },
+  { id: 'sticks', label: ['Deku Stick Bag', 'Bolsa de Galhos Deku'], hash: 0x457616B0, nameHash: 0x2808EE1C, actor: 'Item_StickBag', tiers: [[10, 0x2FE6AB1A], [20, 0x41DB7AB5], [30, 0x48E53698]] },
+  { id: 'bombs', label: ['Bomb Bag', 'Bolsa de Bombas'], hash: 0xE753508B, tiers: [[20, 0xB0A1BF51], [30, 0xE5FF45AA], [40, 0xBD3CA2C6]] },
+  { id: 'arrows', label: ['Quiver', 'Aljava'], hash: 0x418DB791, tiers: [[30, 0xA8C3E1FB], [40, 0x3BB370E1], [50, 0xD331C7DA]] },
+];
+const tierKeys = ['tierSmall', 'tierMedium', 'tierLarge'];
+const supplies = [
+  { id: 'seeds', label: ['Deku Seeds', 'Sementes Deku'], stock: 0x5FADF7FC, group: 'seeds' },
+  { id: 'nuts', label: ['Deku Nuts', 'Nozes Deku'], stock: 0xF30D9F54, group: 'nuts' },
+  { id: 'sticks', label: ['Deku Sticks', 'Galhos Deku'], stock: 0xB9494411, group: 'sticks' },
+  { id: 'arrows', label: ['Arrows', 'Flechas'], stock: 0x518EC74B, group: 'arrows' },
+  { id: 'bombs', label: ['Bombs', 'Bombas'], stock: 0xDB1BCD4F, group: 'bombs' },
+  { id: 'bombchu', label: ['Bombchus', 'Bombchus'], stock: 0xDF7C517A, group: 'bombs' },
+  { id: 'beans', label: ['Magic Beans', 'Feijões Mágicos'], stock: 0xB003124D, max: 10 },
+  { id: 'scrub', label: ['Business Scrub Seeds', 'Sementes do Mercador Deku'], stock: 0x600E29EB, max: 30 },
+  { id: 'skulltulas', label: ['Gold Skulltula Tokens', 'Tokens de Skulltula Dourada'], stock: 0x04735978, max: 100 },
+  { id: 'heartPieces', label: ['Pieces of Heart (0–3)', 'Pedaços de Coração (0–3)'], stock: 0x51EC97B3, max: 3 },
+];
+const smallKeys = [
+  { id: 'well', label: ['Bottom of the Well', 'Fundo do Poço'], stock: 0x7DD79D10, max: 2 },
+  { id: 'forest', label: ['Forest Temple', 'Templo da Floresta'], stock: 0x90237092, max: 5 },
+  { id: 'fire', label: ['Fire Temple', 'Templo do Fogo'], stock: 0x1DF11487, max: 7 },
+  { id: 'water', label: ['Water Temple', 'Templo da Água'], stock: 0x877BDCEE, max: 4 },
+  { id: 'shadow', label: ['Shadow Temple', 'Templo das Sombras'], stock: 0x5EDDA9E3, max: 5 },
+  { id: 'spirit', label: ['Spirit Temple', 'Templo do Espírito'], stock: 0x79EEEC8E, max: 5 },
+  { id: 'fortress', label: ['Gerudo Fortress', 'Fortaleza Gerudo'], stock: 0x3A28B6A4, max: 4 },
+  { id: 'training', label: ['Gerudo Training Ground', 'Campo de Treinamento Gerudo'], stock: 0xEA9786F5, max: 8 },
+  { id: 'castle', label: ["Ganon's Castle", 'Castelo de Ganon'], stock: 0xFBFD2910, max: 1 },
+];
+const bottleSlots = [
+  [0xD53CE3A7, 0xF39CE410, 0x7D48DF76], [0xFCA29A04, 0x000FF6EA, 0x1EDD164A],
+  [0x893216A1, 0xF63B1194, 0xB80C70A8], [0x5324F9D3, 0xB7F052CE, 0xE4C1B1FC],
+  [0xC92B16BE, 0xE27B136D, 0x365E1953],
+];
+const EMPTY_BOTTLE = 0xBE69DE49;
+const bottleContents = [
+  [EMPTY_BOTTLE, ['Empty', 'Vazia']], [0xEABA6067, ['Red Potion', 'Poção vermelha']], [0x049D37C1, ['Green Potion', 'Poção verde']],
+  [0xF383D6E5, ['Blue Potion', 'Poção azul']], [0x6F49E357, ['Fairy', 'Fada']], [0x1E834EF8, ['Fish', 'Peixe']], [0x74D62ECB, ['Bug', 'Inseto']],
+  [0x1C293517, ['Blue Fire', 'Fogo azul']], [0x02084F9E, ['Poe', 'Poe']], [0xCDC21471, ['Big Poe', 'Big Poe']],
+  [0x73356827, ['Lon Lon Milk', 'Leite Lon Lon']], [0xEEF6E4B0, ['Lon Lon Milk (half)', 'Leite (metade)']], [0x0F24E808, ["Ruto's Letter", 'Carta de Ruto']],
+];
+const K = { rupees: 0xA77921D7, limit: 0xE0010A50, wallet: 0x3E42AFFA, previewRupees: 0xA9557547 };
+const vitalsFields = [
+  { id: 'hearts', p: 0x31AB5580, c: 0x1E55ECC5, scale: 4 },
+  { id: 'maxHearts', p: 0xFBE01DA1, c: 0x74BD05D0, scale: 4 },
+  { id: 'magic', p: 0x76B18200, c: 0x19F26B6A, scale: 10 },
+  { id: 'maxMagic', p: 0x12D63A97, c: 0x943F8EC3, scale: 10 },
+];
+const magicStages = [
+  { max: 0, label: ['No magic meter', 'Sem medidor de magia'] },
+  { max: 24, label: ['Normal meter · 24 MP', 'Medidor normal · 24 PM'], blessing: 0x5E671D92 },
+  { max: 48, label: ['Double meter · 48 MP', 'Medidor duplo · 48 PM'], blessing: 0x5F043856 },
+];
+const VOICE = 0xA2DCDC9D;
+const voiceLanguages = [
+  [0x82591FA9, ['English', 'Inglês']], [0x1C3498EB, ['Portuguese (Brazil)', 'Português (Brasil)']], [0x69B014CE, ['Japanese', 'Japonês']],
+  [0xA683B1FD, ['Spanish (Latin America)', 'Espanhol (América Latina)']], [0x33C26987, ['Spanish (Spain)', 'Espanhol (Espanha)']],
+  [0x2498C397, ['French (France)', 'Francês (França)']], [0x7D30FC45, ['French (Canada)', 'Francês (Canadá)']], [0x515B9EEB, ['German', 'Alemão']], [0x8D62C251, ['Italian', 'Italiano']],
+];
+const songs = [
+  ['ZeldaLullaby', "Zelda's Lullaby", 'Canção de Ninar de Zelda'], ['EponaSong', "Epona's Song", 'Canção de Epona'], ['SariaSong', "Saria's Song", 'Canção de Saria'],
+  ['SunSong', "Sun's Song", 'Canção do Sol'], ['TimeSong', 'Song of Time', 'Canção do Tempo'], ['StormSong', 'Song of Storms', 'Canção das Tempestades'],
+  ['ForestMinuet', 'Minuet of Forest', 'Minueto da Floresta'], ['FireBolero', 'Bolero of Fire', 'Bolero do Fogo'], ['WaterSerenade', 'Serenade of Water', 'Serenata da Água'],
+  ['SpiritRequiem', 'Requiem of Spirit', 'Réquiem do Espírito'], ['ShadowNocturne', 'Nocturne of Shadow', 'Noturno das Sombras'], ['LightPrelude', 'Prelude of Light', 'Prelúdio da Luz'],
+  ['ScarecrowSong', "Scarecrow's Song", 'Canção do Espantalho'],
+].map(([id, en, pt]) => ({ id, label: [en, pt], get: mm3('IsGet.Item_Melody_' + id), event: mm3('HavePlayedGetEvent.Item_Melody_' + id) }));
+const locations = [
+  ['KokiriForest', 'Kokiri Forest', 'Floresta Kokiri'], ['LostWood', 'Lost Woods', 'Bosque Perdido'], ['SacredForestMeadow', 'Sacred Forest Meadow', 'Prado Sagrado da Floresta'],
+  ['HyruleField', 'Hyrule Field', 'Campo de Hyrule'], ['Market', 'Market', 'Mercado'], ['HyruleCastle', 'Hyrule Castle', 'Castelo de Hyrule'],
+  ['LonLonRanch', 'Lon Lon Ranch', 'Rancho Lon Lon'], ['IngoRanch', 'Ingo Ranch', 'Rancho (Ingo)'], ['KakarikoVillage', 'Kakariko Village', 'Vilarejo Kakariko'], ['Graveyard', 'Graveyard', 'Cemitério'],
+  ['DeathMountainTrail', 'Death Mountain Trail', 'Trilha da Montanha da Morte'], ['DeathMountainCrater', 'Death Mountain Crater', 'Cratera da Montanha da Morte'], ['GoronCity', 'Goron City', 'Cidade Goron'],
+  ['ZoraRiver', "Zora's River", 'Rio Zora'], ['ZoraDomain', "Zora's Domain", 'Domínio Zora'], ['ZoraFountain', "Zora's Fountain", 'Fonte Zora'], ['LakeHylia', 'Lake Hylia', 'Lago Hylia'],
+  ['GerudoValley', 'Gerudo Valley', 'Vale Gerudo'], ['GerudoFortress', 'Gerudo Fortress', 'Fortaleza Gerudo'], ['HountedWasteland', 'Haunted Wasteland', 'Deserto Assombrado'], ['DesertColossus', 'Desert Colossus', 'Colosso do Deserto'],
+  ['InsideTheDekuTree', 'Inside the Deku Tree', 'Interior da Árvore Deku'], ['DodongoCavern', "Dodongo's Cavern", 'Caverna dos Dodongos'], ['InsideJabuJabuBelly', "Inside Jabu-Jabu's Belly", 'Barriga de Jabu-Jabu'],
+  ['ForestTemple', 'Forest Temple', 'Templo da Floresta'], ['FireTemple', 'Fire Temple', 'Templo do Fogo'], ['WaterTemple', 'Water Temple', 'Templo da Água'], ['ShadowTemple', 'Shadow Temple', 'Templo das Sombras'],
+  ['SpiritTemple', 'Spirit Temple', 'Templo do Espírito'], ['BottomOfTheWell', 'Bottom of the Well', 'Fundo do Poço'], ['IceCavern', 'Ice Cavern', 'Caverna de Gelo'],
+  ['GerudoTrainingGround', 'Gerudo Training Ground', 'Campo de Treinamento Gerudo'], ['GanonCastle', "Ganon's Castle", 'Castelo de Ganon'], ['InsideGanonCastle', "Inside Ganon's Castle", 'Interior do Castelo de Ganon'],
+  ['DreamWorld', 'Dream World', 'Mundo dos Sonhos'],
+].map(([id, en, pt]) => ({ id, label: [en, pt], hash: mm3('IsVisitLocation.' + id) }));
+const records = [
+  ['MiniGame_Fishing_RecordFishSize_Child', 'Fishing: biggest fish (child)', 'Pesca: maior peixe (criança)'],
+  ['MiniGame_Fishing_RecordFishSize_Adult', 'Fishing: biggest fish (adult)', 'Pesca: maior peixe (adulto)'],
+  ['MiniGame_Fishing_PlayCount', 'Fishing: times played', 'Pesca: vezes jogadas'],
+  ['MiniGame_HorsebackArchery_BestScore', 'Horseback archery: best score', 'Arco a cavalo: melhor pontuação'],
+  ['MiniGame_HitTarget_BestScore', 'Shooting gallery (Market): best score', 'Tiro ao alvo (Mercado): melhor pontuação'],
+  ['MiniGame_HitTarget_Kakariko_BestScore', 'Shooting gallery (Kakariko): best score', 'Tiro ao alvo (Kakariko): melhor pontuação'],
+  ['MiniGame_DampeRace_BestTime_Minutes', "Dampé's race: minutes", 'Corrida do Dampé: minutos'],
+  ['MiniGame_DampeRace_BestTime_Second', "Dampé's race: seconds", 'Corrida do Dampé: segundos'],
+  ['MiniGame_DampeRace_BestTime_MilliSecond', "Dampé's race: milliseconds", 'Corrida do Dampé: milissegundos'],
+  ['MiniGame_DampeRace_ClearCount', "Dampé's race: wins", 'Corrida do Dampé: vitórias'],
+  ['MiniGame_HorseRace_BestTime_Minutes', 'Horse race: minutes', 'Corrida de cavalos: minutos'],
+  ['MiniGame_HorseRace_BestTime_Second', 'Horse race: seconds', 'Corrida de cavalos: segundos'],
+  ['MiniGame_HorseRace_BestTime_MiliSecond', 'Horse race: milliseconds', 'Corrida de cavalos: milissegundos'],
+  ['SubEvent_RunningRace_BestTime_Minute', 'Running race: minutes', 'Corrida a pé: minutos'],
+  ['SubEvent_RunningRace_BestTime_Second', 'Running race: seconds', 'Corrida a pé: segundos'],
+  ['SubEvent_RunningRace_BestTime_MilliSecond', 'Running race: milliseconds', 'Corrida a pé: milissegundos'],
+  ['MiniGame_FrogTenors_GetCount', 'Frog tenors: prizes', 'Sapos tenores: prêmios'],
+  ['Minigame_SkullKidSession_MaxRallyCount', 'Skull Kid session: best streak', 'Sessão com Skull Kid: maior sequência'],
+  ['DreamWorld_BossRushResultMinute', 'Boss Rush: minutes', 'Boss Rush: minutos'],
+  ['DreamWorld_BossRushResultSecond', 'Boss Rush: seconds', 'Boss Rush: segundos'],
+  ['DreamWorld_BossRushResultMilliSecond', 'Boss Rush: milliseconds', 'Boss Rush: milissegundos'],
+  ['GhostShop_CouponNum', 'Ghost shop: coupons', 'Loja dos Poes: cupons'],
+  ['Enemy_MiddleBoss_GerudoThief_DefeatNum', 'Gerudo thieves defeated', 'Ladras Gerudo derrotadas'],
+  ['Meet_GreatFairy_RemainNumber', 'Great Fairies remaining', 'Grandes Fadas restantes'],
+  ['GerudoFortress_Meet_FourCarpenter_NumOfCarpenterHelped', 'Carpenters rescued', 'Carpinteiros resgatados'],
+].map(([name, en, pt]) => ({ name, label: [en, pt], hash: mm3(name) }));
+const GIANT_LIFE = mm3('PlayerStatus.WeaponSwordGiantLife');
+const ptNames = {
+  Armor_Adult_Gauntlet_Gold: 'Manoplas Douradas', Armor_Adult_Gauntlet_Silver: 'Manoplas Prateadas', Armor_Adult_Goron: 'Túnica Goron',
+  Armor_Adult_HeavyBoot: 'Botas de Ferro', Armor_Adult_HoverBoot: 'Botas Flutuantes', Armor_Adult_Normal: 'Roupa do Herói', Armor_Adult_Zora: 'Túnica Zora',
+  Armor_Child_Gauntlet_Goron: 'Bracelete Goron', Armor_Child_Mask_Bunny: 'Capuz de Coelho', Armor_Child_Mask_Gerudo: 'Máscara Gerudo',
+  Armor_Child_Mask_Goron: 'Máscara Goron', Armor_Child_Mask_Keaton: 'Máscara de Keaton', Armor_Child_Mask_Skull: 'Máscara de Caveira',
+  Armor_Child_Mask_Spooky: 'Máscara Assustadora', Armor_Child_Mask_Truth: 'Máscara da Verdade', Armor_Child_Mask_Zora: 'Máscara Zora',
+  Armor_Child_Mask_Amiibo0: 'Máscara de Fada Criança', Armor_Child_Mask_Amiibo1: 'Máscara de Princesa',
+  Armor_GlassTruth: 'Lente da Verdade', Item_AgonyStone: 'Pedra do Eco', Item_Arrow_Fire: 'Flecha de Fogo', Item_Arrow_Ice: 'Flecha de Gelo',
+  Item_Arrow_Light: 'Flecha de Luz', Item_Boomerang: 'Bumerangue', Item_DinFire: 'Fogo de Din', Item_FaroreWind: 'Vento de Farore', Item_NayruLove: 'Amor de Nayru',
+  Item_Hammer: 'Martelo Megaton', Item_Hookshot: 'Gancho', Item_Longshot: 'Gancho Longo', Item_Medal_Fire: 'Medalhão do Fogo',
+  Item_Medal_Forest: 'Medalhão da Floresta', Item_Medal_Light: 'Medalhão da Luz', Item_Medal_Shadow: 'Medalhão das Sombras',
+  Item_Medal_Spirit: 'Medalhão do Espírito', Item_Medal_Water: 'Medalhão da Água', Item_Ocarina_Fairy: 'Ocarina das Fadas', Item_Ocarina_Time: 'Ocarina do Tempo',
+  Item_Scale_Gold: 'Escama Dourada', Item_Scale_Silver: 'Escama Prateada', Item_Stone_Fire: 'Rubi Goron', Item_Stone_Forest: 'Esmeralda Kokiri',
+  Item_Stone_Water: 'Safira Zora', Item_Token_Gerudo: 'Passe Gerudo', Item_ZeldaLetter: 'Carta de Zelda', Item_WeirdEgg: 'Ovo Estranho',
+  Obj_Armor_Child_Normal: 'Túnica Kokiri', Weapon_Range_Bow: 'Arco das Fadas', Weapon_Range_SlingShot: 'Estilingue das Fadas',
+  Weapon_Shield_Deku: 'Escudo Deku', Weapon_Shield_Hylian: 'Escudo Hyliano', Weapon_Shield_Mirror: 'Escudo Espelhado',
+  Weapon_Sword_Biggoron: 'Espada de Biggoron', Weapon_Sword_BrokenGiant: 'Faca do Gigante Quebrada', Weapon_Sword_Giant: 'Faca do Gigante',
+  Weapon_Sword_Kokiri: 'Espada Kokiri', Weapon_Sword_Master: 'Espada Mestra', Item_FairyBless_DefenseDouble: 'Dádiva: dano reduzido à metade',
+  Item_PocketEgg: 'Ovo de Bolso', Item_PocketCucco: 'Cuco de Bolso', Item_CojiroCucco: 'Cojiro', Item_OddMushroom: 'Cogumelo Estranho',
+  Item_OddPowder: 'Poção Estranha', Item_PoacherSaw: 'Serra do Caçador', Item_BrokenSword: 'Espada Goron Quebrada', Item_Prescription: 'Receita',
+  Item_EyeballFrog: 'Sapo Olhudo', Item_EyeDrop: 'Colírio Especial', Item_ClaimCheck: 'Recibo do Biggoron', Item_AlarmCucco: 'Cuco Despertador',
+};
+const itemGroups = {
+  swords: ['Swords', 'Espadas'], shields: ['Shields', 'Escudos'], masks: ['Masks', 'Máscaras'], tunics: ['Tunics', 'Túnicas'], boots: ['Boots', 'Botas'],
+  upgrades: ['Upgrades', 'Melhorias'], quest: ['Stones & medallions', 'Pedras e medalhões'], magic: ['Magic & arrows', 'Magias e flechas'],
+  trade: ['Trading & quests', 'Troca e missões'], items: ['Items', 'Itens'],
+};
+function itemGroup(name) {
+  if (/^Weapon_Sword/.test(name)) return 'swords';
+  if (/^Weapon_Shield/.test(name)) return 'shields';
+  if (/^Armor_Child_Mask/.test(name)) return 'masks';
+  if (/Armor_Adult_(Goron|Zora|Normal)|Obj_Armor_Child/.test(name)) return 'tunics';
+  if (/Boot/.test(name)) return 'boots';
+  if (/Gauntlet|Scale|FairyBless/.test(name)) return 'upgrades';
+  if (/Medal|Stone_/.test(name)) return 'quest';
+  if (/DinFire|FaroreWind|NayruLove|Arrow_(Fire|Ice|Light)/.test(name)) return 'magic';
+  if (/Cucco|Egg|Mushroom|Powder|Saw|BrokenSword|Prescription|Frog|EyeDrop|ClaimCheck|ZeldaLetter/.test(name)) return 'trade';
+  return 'items';
+}
+
+/* ============ Logic ============ */
+function walletOf(p) { return wallets.find(w => w.id === p.str(K.wallet, 64)) || null; }
+function setWallet(p, w) { p.setStr(K.wallet, 64, w.id); p.setInt(K.limit, w.limit); for (const x of wallets) p.setInt(x.stock, Number(x === w)); }
+function setRupees(p, c, n) { p.setInt(K.rupees, n); if (c.has(K.previewRupees)) c.setInt(K.previewRupees, n); }
+function isLegacyMagic(p) { const raw = p.int(0x12D63A97); return magicStages.some(s => s.blessing && s.max === raw); }
+function readVitals(p, legacy) {
+  const v = {};
+  for (const f of vitalsFields) v[f.id] = p.int(f.p) / (legacy && (f.id === 'magic' || f.id === 'maxMagic') ? 1 : f.scale);
+  return v;
+}
+function writeVitals(p, c, v, grantBlessings = false) {
+  if (!Number.isInteger(v.maxHearts) || v.maxHearts < 3 || v.maxHearts > 20) throw Error(t('eHearts'));
+  if (!Number.isInteger(v.hearts * 4) || v.hearts < 0 || v.hearts > v.maxHearts) throw Error(t('eCurHearts'));
+  if (!magicStages.some(s => s.max === v.maxMagic)) throw Error(t('eMeter'));
+  const rawMagic = Math.round(v.magic * 10);
+  if (Math.abs(rawMagic / 10 - v.magic) > 1e-9 || v.magic < 0 || v.magic > v.maxMagic) throw Error(t('eMagic', v.maxMagic));
+  for (const f of vitalsFields) {
+    const val = f.id === 'magic' ? rawMagic : Math.round(v[f.id] * f.scale);
+    p.setInt(f.p, val);
+    if (c.has(f.c)) c.setInt(f.c, val);
+  }
+  if (grantBlessings) for (const s of magicStages) if (s.blessing && s.max <= v.maxMagic) p.setInt(s.blessing, 1);
+}
+function capacity(p, g) { return p.int(g.hash); }
+function upgradeBag(p, g, tierIdx) {
+  const [limit] = g.tiers[tierIdx];
+  if (limit < capacity(p, g)) return;
+  p.setInt(g.hash, limit);
+  for (const [, stock] of g.tiers.slice(0, tierIdx + 1)) p.setInt(stock, 1);
+  if (g.nameHash && p.has(g.nameHash)) p.setStr(g.nameHash, 64, g.actor + '_' + ['Small', 'Medium', 'Large'][tierIdx]);
+}
+function itemMax(p, item) { const g = capGroups.find(g => g.id === item.group); return g ? Math.max(capacity(p, g), g.tiers.at(-1)[0]) : item.max; }
+function setAmount(p, item, n) {
+  const max = itemMax(p, item);
+  if (!Number.isInteger(n) || n < 0 || n > max) throw Error(t('eRange', L(item.label), max));
+  p.setInt(item.stock, n);
+  const g = capGroups.find(g => g.id === item.group);
+  if (g && n > capacity(p, g)) { const ti = g.tiers.findIndex(([l]) => l >= n); if (ti >= 0) upgradeBag(p, g, ti); }
+}
+function readBottles(p) { return bottleSlots.map(([st, va, co]) => ({ stock: p.int(st), valid: p.int(va), content: p.u32(co) })); }
+function setBottle(p, i, owned, content) {
+  const [st, va, co] = bottleSlots[i];
+  p.setInt(st, owned ? 1 : 0); p.setInt(va, owned ? 1 : 0); p.setU32(co, owned ? (content ?? EMPTY_BOTTLE) : EMPTY_BOTTLE);
+}
+function setSong(p, song, on) { p.setInt(song.get, on ? 1 : 0); if (p.has(song.event)) p.setInt(song.event, on ? 1 : 0); }
+function missingRegistrations(p, regs) { return regs.filter(([stocks, acquired]) => p.has(acquired) && p.int(acquired) === 0 && stocks.some(h => p.has(h) && p.int(h) > 0)); }
+function registerInventory(p, regs) {
+  const done = [];
+  for (const [, acquired, related, name] of missingRegistrations(p, regs)) { for (const h of [acquired, related]) if (h && p.has(h)) p.setInt(h, 1); done.push(name); }
+  return done;
+}
+function validateSlot(p) {
+  const issues = [];
+  const w = walletOf(p);
+  if (!w) issues.push(t('wWallet'));
+  else {
+    if (p.int(K.limit) !== w.limit) issues.push(t('wLimit'));
+    if (p.int(w.stock) !== 1) issues.push(t('wWalletOwned'));
+    if (p.int(K.rupees) < 0 || p.int(K.rupees) > w.limit) issues.push(t('wRupees'));
+  }
+  for (const b of readBottles(p)) if ((b.stock !== 0 && b.stock !== 1) || b.stock !== b.valid) { issues.push(t('wBottles')); break; }
+  return issues;
+}
+</script>
+<script id="ui">
+'use strict';
+const $ = id => document.getElementById(id);
+const CAT = JSON.parse($('catalog').textContent);
+const TYPES = CAT.types;
+const FIELD_INFO = new Map(CAT.fields.map(([h, ty, n]) => [h, { type: TYPES[ty], name: n || '' }]));
+const PER_PAGE = 100;
+const ITEM_LIST = CAT.inventory.filter(i => i[3] || i[1] === 'Item_FairyBless_DefenseDouble');
+const st = { slots: [], slot: null, p: null, c: null, o: null, orig: null, legacy: false, dir: null, helper: false, flagPage: 0, advPage: 0, batch: null };
+
+function toast(text, ms = 4000) { const e = $('toast'); e.textContent = text; e.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => e.style.display = 'none', ms); }
+const el = (tag, props = {}, ...kids) => { const e = document.createElement(tag); Object.assign(e, props); e.append(...kids); return e; };
+const pad = n => String(n).padStart(2, '0');
+function fmtDate(d) { return LANG === 'pt' ? pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) : d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+function stamp() { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + '_' + pad(d.getHours()) + '-' + pad(d.getMinutes()) + '-' + pad(d.getSeconds()); }
+const LS = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+function setMsg(id, text, kind = '') { const m = $(id); m.textContent = text; m.className = kind; }
+
+/* ---------- Language ---------- */
+function applyStatic() {
+  document.documentElement.lang = LANG === 'pt' ? 'pt-BR' : 'en';
+  document.querySelectorAll('[data-t]').forEach(e => { e.textContent = t(e.dataset.t); });
+  document.querySelectorAll('[data-tp]').forEach(e => { e.placeholder = t(e.dataset.tp); });
+  $('langEn').classList.toggle('on', LANG === 'en'); $('langPt').classList.toggle('on', LANG === 'pt');
+  fillSelect('itemStatus', [['', 'all'], ['missing', 'notOwned'], ['owned', 'ownedP']]);
+  fillSelect('itemCat', [['', 'allGroups'], ...Object.keys(itemGroups).map(k => [k, null, L(itemGroups[k])])]);
+  fillSelect('flagCat', [['', 'all'], ['event', 'fcEvent'], ['talk', 'fcTalk'], ['get', 'fcGet'], ['visit', 'fcVisit'], ['other', 'fcOther']]);
+  fillSelect('flagStatus', [['', 'all'], ['on', 'fsOn'], ['off', 'fsOff'], ['chg', 'fsChg']]);
+  fillSelect('advNamed', [['named', 'namedOnly'], ['all', 'all'], ['chg', 'changedOnly']]);
+  const at = $('advType'), atv = at.value;
+  at.replaceChildren(new Option(t('allTypes'), ''), ...[...new Set(TYPES)].sort().map(x => new Option(x, x)));
+  at.value = atv;
+}
+function fillSelect(id, opts) {
+  const s = $(id), v = s.value;
+  s.replaceChildren(...opts.map(([val, key, text]) => new Option(text ?? t(key), val)));
+  if ([...s.options].some(o => o.value === v)) s.value = v;
+}
+function setLang(l) {
+  LANG = l;
+  applyStatic();
+  if (!$('slotBox').hidden) renderSlotCards();
+  if (!$('folderBox').hidden && st.scan) showFolders(st.scan);
+  if (st.p) { $('slot').replaceChildren(...st.slots.map((s, i) => el('option', { value: i, textContent: s.label + ' — ' + slotSummary(s) }))); $('slot').value = st.slots.indexOf(st.slot); renderWarnings(); renderAll(); }
+  updateFolderName();
+}
+
+/* ---------- Helper (local server started by the .bat) ---------- */
+const HELPER_TOKEN = (location.protocol === 'http:' && (location.hash.match(/t=([0-9a-f]{32})/) || [])[1]) || null;
+async function api(path, params = {}, opts = {}) {
+  const r = await fetch('/api/' + path + '?' + new URLSearchParams(params), { method: opts.method || 'GET', body: opts.body, headers: { 'X-Token': HELPER_TOKEN }, cache: 'no-store' });
+  if (!r.ok) throw Error(await r.text() || ('HTTP ' + r.status));
+  return opts.raw ? new Uint8Array(await r.arrayBuffer()) : r.json();
+}
+function showBox(id) { for (const b of ['folderBox', 'slotBox', 'manualBox']) $(b).hidden = b !== id; $('landing').hidden = false; $('app').hidden = true; $('slotbox').hidden = true; $('btnSave').hidden = true; $('btnUndo').hidden = true; $('changes').textContent = ''; }
+function showFolders(scan) {
+  st.scan = scan;
+  const dirs = scan.dirs;
+  $('folderTitle').textContent = dirs.length ? t('chooseFolder') : t('notFound');
+  $('folderText').textContent = !dirs.length ? t('notFoundText') : dirs.length > 1 ? t('foundMany') : t('foundOne');
+  $('folderCheck').textContent = dirs.length ? t('checkFolder') : '';
+  $('folderDirs').replaceChildren(...dirs.map(d => {
+    const b = el('button', { className: 'primary', style: 'text-align:left;max-width:100%' }, el('b', { textContent: d.label + (d.newest ? ' · ' + t('newestSave', d.newest) : '') }), el('br'), el('span', { className: 'mono', style: 'color:#17221b;font-size:.78rem', textContent: d.path }));
+    b.title = d.path; b.addEventListener('click', () => openRemote(d.path)); return b;
+  }));
+}
+async function startHelper() {
+  st.helper = true;
+  showBox('folderBox');
+  $('folderTitle').textContent = t('searching');
+  try {
+    const scan = await api('scan');
+    if (scan.helper !== 3) { $('folderTitle').textContent = t('oldHelper'); $('folderText').textContent = ''; return; }
+    showFolders(scan);
+  } catch (e) {
+    $('folderTitle').textContent = t('helperDown'); $('folderText').textContent = t('helperDownText', e.message);
+  }
+}
+function remoteFile(root, rel) {
+  return {
+    async read() { return api('read', { root, rel }, { raw: true }); },
+    async write(data) { return api('write', { root, rel, batch: st.batch }, { method: 'POST', body: data }); },
+  };
+}
+async function openRemote(root) {
+  try {
+    setMsg('landMsg', t('reading'));
+    const { files } = await api('list', { root });
+    let mt = {}; try { for (const f of (await api('files', { root })).files) mt[f.rel] = f.mtime; } catch { }
+    const out = [];
+    for (const f of files) out.push({ path: f.rel, name: f.rel.split('/').pop(), bytes: await api('read', { root, rel: f.rel }, { raw: true }), handle: remoteFile(root, f.rel), mtime: mt[f.rel] || '' });
+    const slots = buildSlots(out);
+    if (!slots.length) throw Error(t('noSaveFound') + ' (' + root + ')');
+    st.dir = { name: root.split(/[\\/]/).pop(), root };
+    LS.set('oot-last-root', root);
+    setMsg('landMsg', '');
+    st.slots = slots;
+    showSlotPicker();
+  } catch (e) { setMsg('landMsg', e.message, 'err'); showBox('folderBox'); }
+}
+
+async function emuStatus() { try { return (await api('status')).emulators || []; } catch { return []; } }
+async function refreshEmu() {
+  if (!st.helper) return;
+  const emu = await emuStatus();
+  const box = $('emuWarn');
+  const g = emu.find(e => e.game), o = emu[0];
+  box.hidden = !o;
+  box.className = g ? 'warn' : 'info';
+  box.textContent = g ? t('emuGame', g.name, g.title) : o ? t('emuOpen', o.name) : '';
+  const lb = $('emuWarnLand'); lb.hidden = !o || $('landing').hidden; lb.className = box.className; lb.textContent = box.textContent;
+}
+setInterval(() => { if (!$('app').hidden || !$('slotBox').hidden) refreshEmu(); }, 4000);
+async function renderDiag() {
+  const d = $('diag');
+  if (!st.helper) { d.hidden = true; return; }
+  d.hidden = false;
+  try {
+    const { files } = await api('files', { root: st.dir.root });
+    const cur = st.slot ? dirname(st.slot.progress.path) : '';
+    $('diagRows').replaceChildren(...files.sort((a, b) => a.rel.localeCompare(b.rel)).map(f => {
+      const tr = el('tr', {}, el('td', {}, el('code', { textContent: f.rel })), el('td', { textContent: f.size.toLocaleString() }), el('td', { textContent: f.mtime }));
+      if (cur && f.rel.startsWith(cur)) tr.className = 'chg';
+      return tr;
+    }));
+  } catch (e) { $('diagRows').replaceChildren(el('tr', {}, el('td', { colSpan: 3, className: 'err', textContent: e.message }))); }
+}
+
+/* ---------- Slots ---------- */
+const dirname = p => { const i = p.lastIndexOf('/'); return i < 0 ? '' : p.slice(0, i + 1); };
+function slotMeta(slot) {
+  try {
+    const c = parseSave(slot.caption.bytes, SMALL_HDR), p = parseSave(slot.progress.bytes, PROGRESS_HDR);
+    const ci = h => c.has(h) ? c.int(h) : 0;
+    const date = new Date(ci(0x9811A3F7), ci(0xDFD840D3) - 1, ci(0xBD46F485), ci(0x23F3D75E), ci(0x27853BF7));
+    const v = readVitals(p, isLegacyMagic(p));
+    let thumb = null;
+    try { const o = c.block(0x63696A32, 4), n = c.view.getUint32(o, true); if (n > 4 && c.bytes[o + 4] === 0xFF && c.bytes[o + 5] === 0xD8) thumb = c.bytes.slice(o + 4, o + 4 + n); } catch { }
+    return { date, area: p.str(0x1D6189DA, 64) || '?', auto: !!ci(0x25F03CAA), hearts: v.maxHearts, rupees: p.int(K.rupees), skull: p.int(0x04735978), thumb };
+  } catch { return { date: new Date(0), area: '?', auto: false, hearts: 0, rupees: 0, thumb: null }; }
+}
+const slotSummary = s => fmtDate(s.meta.date) + ' · ' + s.meta.area + ' · ' + (s.meta.auto ? t('autosave') : t('manualSave'));
+function buildSlots(files) {
+  const groups = new Map(), options = [];
+  for (const f of files) {
+    let role = null; try { role = classify(f.bytes); } catch { continue; }
+    if (!role) continue;
+    f.role = role;
+    if (role === 'option') { options.push(f); continue; }
+    const d = dirname(f.path);
+    if (!groups.has(d)) groups.set(d, {});
+    const g = groups.get(d);
+    if (!g[role] || f.name.toLowerCase() === role + '.sav') g[role] = f;
+  }
+  const slots = [];
+  for (const [d, g] of groups) {
+    if (!g.progress || !g.caption) continue;
+    const parent = dirname(d.slice(0, -1));
+    const opt = options.find(o => dirname(o.path) === d) || options.find(o => dirname(o.path) === parent) || (options.length === 1 ? options[0] : null);
+    const s = { id: d || '(files)', label: d ? d.replace(/\/$/, '').split('/').pop() : 'Save', progress: g.progress, caption: g.caption, option: opt };
+    s.meta = slotMeta(s);
+    slots.push(s);
+  }
+  return slots.sort((a, b) => a.id.localeCompare(b.id));
+}
+function showSlotPicker() { showBox('slotBox'); renderSlotCards(); updateFolderName(); }
+function enterManual() { st.helper = false; st.dir = null; showBox('manualBox'); updateFolderName(); }
+function renderSlotCards() {
+  const newest = st.slots.reduce((b, s) => (!b || s.meta.date > b.meta.date) ? s : b, null);
+  const last = LS.get('oot-last-slot');
+  const byLabel = {};
+  for (const s of st.slots) (byLabel[s.label] = byLabel[s.label] || []).push(s.id);
+  const dups = Object.entries(byLabel).filter(([, v]) => v.length > 1);
+  $('slotWarn').hidden = !dups.length;
+  $('slotWarn').textContent = dups.map(([k, v]) => t('dupSlots', k, v.join(' · '))).join('\n');
+  refreshEmu();
+  $('slotCards').replaceChildren(...st.slots.map((s, i) => {
+    const img = el('img', { alt: s.label });
+    if (s.meta.thumb) img.src = URL.createObjectURL(new Blob([s.meta.thumb], { type: 'image/jpeg' }));
+    const tags = el('div');
+    tags.append(el('span', { className: 'tag', textContent: s.meta.auto ? t('autosave') : t('manualSave') }));
+    if (s === newest && st.slots.length > 1) tags.append(el('span', { className: 'tag gold', textContent: t('newest') }));
+    if (s.label === last) tags.append(el('span', { className: 'tag gold', textContent: t('lastEdited') }));
+    const card = el('button', { className: 'slotcard' }, img, el('div', { className: 'in' },
+      el('b', { textContent: s.label }), el('div', { className: 'meta mono', textContent: s.id }), el('div', { className: 'meta', textContent: fmtDate(s.meta.date) + ' · ' + s.meta.area }),
+      s.progress.mtime ? el('div', { className: 'meta', textContent: t('fileModified', s.progress.mtime) }) : '',
+      el('div', { className: 'meta', textContent: t('hearts') + ' ' + s.meta.hearts + ' · ' + t('rupees') + ' ' + s.meta.rupees + ' · Skulltulas ' + s.meta.skull }), tags));
+    card.addEventListener('click', () => openSlot(i));
+    return card;
+  }));
+}
+function openSlot(i) {
+  $('slot').replaceChildren(...st.slots.map((s, j) => el('option', { value: j, textContent: s.label + ' — ' + slotSummary(s) })));
+  $('slot').value = String(i);
+  $('slotbox').hidden = false;
+  loadSlot(i);
+}
+function updateFolderName() {
+  $('folderName').textContent = st.dir ? st.dir.root + ' · ' + t('viaHelper') : (st.slots.length && !st.helper ? t('manualMode') : '');
+  $('folderName').title = st.dir ? st.dir.root : '';
+}
+
+function loadSlot(i) {
+  const s = st.slots[i];
+  const p = parseSave(s.progress.bytes.slice(), PROGRESS_HDR);
+  const c = parseSave(s.caption.bytes.slice(), SMALL_HDR);
+  let o = null;
+  if (s.option) { try { o = parseSave(s.option.bytes.slice(), SMALL_HDR); if (!o.has(VOICE)) o = null; } catch { o = null; } }
+  st.slot = s; st.p = p; st.c = c; st.o = o;
+  st.orig = { p: parseSave(s.progress.bytes.slice(), PROGRESS_HDR), c: parseSave(s.caption.bytes.slice(), SMALL_HDR), o: o ? parseSave(s.option.bytes.slice(), SMALL_HDR) : null };
+  st.legacy = isLegacyMagic(p);
+  st.flagPage = 0; st.advPage = 0;
+  LS.set('oot-last-slot', s.label);
+  $('landing').hidden = true; $('app').hidden = false;
+  $('btnSave').hidden = false; $('btnUndo').hidden = false; $('slotbox').hidden = false;
+  $('srcinfo').textContent = (st.dir ? st.dir.root.replace(/[\\/]$/, '') + (st.dir.root.includes('\\') ? '\\' : '/') : '') + s.progress.path.replace(/\//g, st.dir && st.dir.root.includes('\\') ? '\\' : '/');
+  renderWarnings();
+  renderAll();
+}
+function renderWarnings() {
+  const p = st.p, warns = [];
+  if (!st.helper) warns.push(t('wManual'));
+  if (p.version !== VERSION) warns.push(t('wVersion', HEX(p.version)));
+  warns.push(...validateSlot(p));
+  if (st.legacy) warns.push(t('wLegacy'));
+  const miss = missingRegistrations(p, CAT.registrations);
+  if (miss.length) warns.push(t('wMissing', miss.length));
+  $('warnings').replaceChildren(...warns.map(w => el('div', { className: 'warn', textContent: w })));
+}
+
+/* ---------- Changes ---------- */
+const BLOCK_LEN = { String32: 32, String64: 64, Vector3: 12, Int64: 8, UInt64: 8 };
+function fieldChanged(cur, orig, h) {
+  const info = FIELD_INFO.get(h);
+  const a = cur.view.getUint32(cur.at(h), true), b = orig.view.getUint32(orig.at(h), true);
+  const len = info && BLOCK_LEN[info.type];
+  if (len) { try { const oa = cur.block(h, len), ob = orig.block(h, len); for (let i = 0; i < len; i++) if (cur.bytes[oa + i] !== orig.bytes[ob + i]) return true; } catch {} }
+  return a !== b;
+}
+const changed = h => st.p.has(h) && fieldChanged(st.p, st.orig.p, h);
+function bytesDiffer(a, b) { if (a.length !== b.length) return true; for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return true; return false; }
+function countChanges() {
+  let n = 0;
+  for (const h of st.p.fields.keys()) if (fieldChanged(st.p, st.orig.p, h)) n++;
+  if (!n && bytesDiffer(st.c.bytes, st.orig.c.bytes)) n++;
+  if (st.o && bytesDiffer(st.o.bytes, st.orig.o.bytes)) n++;
+  return n;
+}
+function updateChanges() {
+  const n = countChanges();
+  $('changes').textContent = n ? t('changesN', n) : t('changesNone');
+  $('btnSave').disabled = !n; $('btnUndo').disabled = !n;
+}
+function mark(id, on) { const l = $('lf-' + id); if (l) l.classList.toggle('chg', on); }
+
+/* ---------- Render ---------- */
+function renderAll() { renderDiag(); refreshEmu(); renderOverview(); renderStatus(); renderSupplies(); renderKeys(); renderBottles(); renderItems(); renderSongs(); renderLocs(); renderRecords(); renderFlags(); renderAdv(); renderOptions(); renderBackups(); updateChanges(); }
+function fmtVal(s, h, type) {
+  try {
+    switch (type) {
+      case 'Bool': { const r = s.u32(h); return r === 0 ? 'false' : r === 1 ? 'true' : HEX(r); }
+      case 'Int': return String(s.int(h));
+      case 'UInt': return String(s.u32(h));
+      case 'Float': return String(+s.f32(h).toFixed(4));
+      case 'Enum': case 'Unknown': return HEX(s.u32(h));
+      case 'String32': return s.str(h, 32);
+      case 'String64': return s.str(h, 64);
+      case 'Int64': return String(s.view.getBigInt64(s.block(h, 8), true));
+      case 'UInt64': return String(s.view.getBigUint64(s.block(h, 8), true));
+      case 'Vector3': { const o = s.block(h, 12); return [0, 4, 8].map(i => +s.view.getFloat32(o + i, true).toFixed(3)).join(' / '); }
+      default: { const o = s.block(h, 4), n = s.view.getUint32(o, true); return n + (type.endsWith('Array') ? ' item(s)' : ' bytes'); }
+    }
+  } catch { return '(invalid offset)'; }
+}
+function itemName(name, title) { return LANG === 'pt' && ptNames[name] ? ptNames[name] + ' (' + title + ')' : title; }
+function renderOverview() {
+  const { p, c } = st;
+  const ci = h => c.has(h) ? c.int(h) : 0;
+  const v = readVitals(p, st.legacy), w = walletOf(p);
+  const owned = ITEM_LIST.filter(([h]) => p.has(h) && p.int(h) > 0).length;
+  const nSongs = songs.filter(s => p.has(s.get) && p.int(s.get)).length;
+  const rows = [
+    ['savedAt', fmtDate(new Date(ci(0x9811A3F7), ci(0xDFD840D3) - 1, ci(0xBD46F485), ci(0x23F3D75E), ci(0x27853BF7))) + ' (' + (ci(0x25F03CAA) ? t('autosave') : t('manualSave')) + ')'],
+    ['location', p.str(0x1D6189DA, 64) || '—'],
+    ['progress', p.str(0x874C7ED4, 64) || '—'],
+    ['rupees', p.int(K.rupees) + ' / ' + (w ? w.limit : '?')],
+    ['hearts', v.hearts + ' / ' + v.maxHearts],
+    ['magic', v.magic + ' / ' + v.maxMagic + ' ' + t('mp')],
+    ['goldSkulltulas', p.int(0x04735978)],
+    ['items', owned + ' ' + t('of') + ' ' + ITEM_LIST.length],
+    ['songs', nSongs + ' ' + t('of') + ' ' + songs.length],
+    ['equipped', [p.str(0xA95A3521, 64), p.str(0xEE463235, 64)].filter(Boolean).join(' / ') || '—'],
+  ];
+  $('overview').replaceChildren(...rows.flatMap(([a, b]) => [el('dt', { textContent: t(a) }), el('dd', { textContent: String(b) })]));
+  const img = $('thumb');
+  if (img.dataset.url) URL.revokeObjectURL(img.dataset.url);
+  const th = slotMeta({ progress: { bytes: st.p.bytes }, caption: { bytes: st.c.bytes } }).thumb;
+  img.hidden = !th;
+  if (th) { img.dataset.url = URL.createObjectURL(new Blob([th], { type: 'image/jpeg' })); img.src = img.dataset.url; }
+}
+function numberField(label, value, min, max, hint, isChanged, onSet) {
+  const input = el('input', { type: 'number', min, max, step: 1, value });
+  const lab = el('label', { className: 'f' + (isChanged ? ' chg' : '') }, label, input, el('small', { textContent: hint }));
+  input.addEventListener('change', () => apply(() => onSet(input.valueAsNumber)));
+  return lab;
+}
+function renderStatus() {
+  const { p } = st;
+  const w = walletOf(p), ws = $('wallet');
+  ws.replaceChildren(...wallets.map(x => new Option(L(x.label) + ' · ' + x.limit, x.id)));
+  ws.value = w ? w.id : '';
+  $('rupees').value = p.int(K.rupees); $('rupees').max = w ? w.limit : 0;
+  $('rupeesHint').textContent = t('maxN', w ? w.limit : '?');
+  mark('wallet', changed(K.wallet)); mark('rupees', changed(K.rupees));
+  const v = readVitals(p, st.legacy), ov = readVitals(st.orig.p, isLegacyMagic(st.orig.p));
+  $('maxHearts').value = v.maxHearts; $('hearts').value = v.hearts; $('hearts').max = v.maxHearts;
+  const stages = magicStages.filter(s => s.max >= ov.maxMagic || !magicStages.some(x => x.max === ov.maxMagic));
+  $('maxMagic').replaceChildren(...stages.map(s => new Option(L(s.label), s.max)));
+  $('maxMagic').value = String(v.maxMagic);
+  $('magic').value = v.magic; $('magic').max = v.maxMagic; $('magic').disabled = v.maxMagic === 0;
+  $('magicHint').textContent = v.maxMagic ? t('upToMp', v.maxMagic) : t('noMagic');
+  for (const f of vitalsFields) mark(f.id, changed(f.p));
+  const misc = [];
+  if (p.has(GIANT_LIFE)) misc.push(numberField(t('giantLife'), p.int(GIANT_LIFE), 0, 9999, t('giantLifeHint'), changed(GIANT_LIFE), n => { if (!Number.isInteger(n) || n < 0) throw Error(t('eInvalid')); p.setInt(GIANT_LIFE, n); }));
+  $('miscGrid').replaceChildren(...misc);
+  $('miscGrid').parentElement.hidden = !misc.length;
+}
+function renderSupplies() {
+  const { p } = st;
+  $('capGrid').replaceChildren(...capGroups.map(g => {
+    const cur = capacity(p, g), sel = el('select');
+    g.tiers.forEach(([limit, stock], i) => {
+      const opt = new Option(t(tierKeys[i]) + ' · ' + limit + (limit === cur ? ' (' + t('current') + ')' : p.int(stock) === 1 ? ' (' + t('owned') + ')' : ''), i);
+      opt.disabled = limit < cur; sel.add(opt);
+    });
+    const curIdx = g.tiers.findIndex(([l]) => l === cur);
+    if (curIdx < 0) sel.add(new Option(t('none'), -1), 0);
+    sel.value = String(curIdx);
+    sel.addEventListener('change', () => apply(() => { const ti = Number(sel.value); if (ti >= 0) upgradeBag(p, g, ti); }));
+    return el('label', { className: 'f' + (changed(g.hash) ? ' chg' : '') }, L(g.label), sel);
+  }));
+  $('supGrid').replaceChildren(...supplies.map(item => {
+    const g = capGroups.find(g => g.id === item.group), max = itemMax(p, item);
+    return numberField(L(item.label), p.int(item.stock), 0, max, g ? t('capHint', capacity(p, g), max) : t('maxN', max), changed(item.stock), n => setAmount(p, item, n));
+  }));
+}
+function renderKeys() {
+  const { p } = st;
+  $('keyGrid').replaceChildren(...smallKeys.filter(k => p.has(k.stock)).map(k => numberField(L(k.label), p.int(k.stock), 0, k.max, t('upTo', k.max), changed(k.stock), n => setAmount(p, k, n))));
+}
+function renderBottles() {
+  const { p } = st;
+  $('bottleList').replaceChildren(...readBottles(p).map((b, i) => {
+    const owned = b.stock === 1;
+    const cb = el('input', { type: 'checkbox', checked: owned });
+    const sel = el('select', { disabled: !owned });
+    for (const [h, n] of bottleContents) sel.add(new Option(L(n), h));
+    if (!bottleContents.some(([h]) => h === b.content)) sel.add(new Option(t('unknown') + ' ' + HEX(b.content), b.content));
+    sel.value = String(b.content);
+    cb.addEventListener('change', () => apply(() => setBottle(p, i, cb.checked, EMPTY_BOTTLE)));
+    sel.addEventListener('change', () => apply(() => setBottle(p, i, true, Number(sel.value))));
+    const row = el('div', { className: 'bottle' }, el('b', { textContent: t('bottleN', i + 1) }), el('label', {}, cb, ' ' + t('own')), sel);
+    if (bottleSlots[i].some(changed)) row.style.background = 'var(--chg)';
+    return row;
+  }));
+}
+function itemRowsData() {
+  const q = $('itemSearch').value.trim().toLowerCase(), cat = $('itemCat').value, stt = $('itemStatus').value;
+  return ITEM_LIST.filter(([h, name, , , title]) => {
+    if (!st.p.has(h)) return false;
+    if (q && !(name + ' ' + title + ' ' + (ptNames[name] || '')).toLowerCase().includes(q)) return false;
+    if (cat && itemGroup(name) !== cat) return false;
+    const n = st.p.int(h);
+    if (stt === 'missing' && n > 0) return false;
+    if (stt === 'owned' && n === 0) return false;
+    return true;
+  });
+}
+function renderItems() {
+  const { p } = st;
+  const order = Object.keys(itemGroups);
+  const rows = itemRowsData().sort((a, b) => order.indexOf(itemGroup(a[1])) - order.indexOf(itemGroup(b[1])) || itemName(a[1], a[4]).localeCompare(itemName(b[1], b[4]))).map(([h, name, , , title]) => {
+    const cb = el('input', { type: 'checkbox', checked: p.int(h) > 0 });
+    cb.addEventListener('change', () => apply(() => p.setInt(h, cb.checked ? 1 : 0)));
+    const tr = el('tr', {}, el('td', {}, el('b', { textContent: itemName(name, title) }), el('br'), el('code', { textContent: name })), el('td', { textContent: L(itemGroups[itemGroup(name)]) }), el('td', {}, cb));
+    if (changed(h)) tr.className = 'chg';
+    return tr;
+  });
+  $('itemRows').replaceChildren(...(rows.length ? rows : [el('tr', {}, el('td', { colSpan: 3, textContent: t('noItems') }))]));
+}
+function checkList(target, list, isOn, setOn, isChg) {
+  $(target).replaceChildren(...list.map(x => {
+    const cb = el('input', { type: 'checkbox', checked: isOn(x) });
+    cb.addEventListener('change', () => apply(() => setOn(x, cb.checked)));
+    return el('label', { className: isChg(x) ? 'chg' : '' }, cb, L(x.label));
+  }));
+}
+function renderSongs() { const { p } = st; checkList('songList', songs.filter(s => p.has(s.get)), s => p.int(s.get) === 1, (s, on) => setSong(p, s, on), s => changed(s.get)); }
+function renderLocs() { const { p } = st; checkList('locList', locations.filter(l => p.has(l.hash)), l => p.int(l.hash) === 1, (l, on) => p.setInt(l.hash, on ? 1 : 0), l => changed(l.hash)); }
+function renderRecords() {
+  const { p } = st;
+  $('recGrid').replaceChildren(...records.filter(r => p.has(r.hash) && FIELD_INFO.get(r.hash)?.type === 'Int').map(r =>
+    numberField(L(r.label), p.int(r.hash), 0, 999999, r.name, changed(r.hash), n => { if (!Number.isInteger(n) || n < 0 || n > 999999) throw Error(t('eInvalid')); p.setInt(r.hash, n); })));
+}
+function flagGroup(name) {
+  if (name.startsWith('HavePlayedEvent.')) return 'event';
+  if (/^(HaveTalked|HavePlayedNavi|HaveTalk)/.test(name)) return 'talk';
+  if (/^(IsGet|HavePlayedGetEvent)/.test(name)) return 'get';
+  if (name.startsWith('IsVisitLocation.')) return 'visit';
+  return 'other';
+}
+let FLAG_LIST = null;
+function renderFlags() {
+  const { p } = st;
+  if (!FLAG_LIST) FLAG_LIST = CAT.fields.filter(([, ty, n]) => n && TYPES[ty] === 'Bool').map(([h, , n]) => [h, n]).sort((a, b) => a[1].localeCompare(b[1]));
+  const q = $('flagSearch').value.trim().toLowerCase(), cat = $('flagCat').value, stt = $('flagStatus').value;
+  const list = FLAG_LIST.filter(([h, n]) => {
+    if (!p.has(h)) return false;
+    const v = p.u32(h);
+    if (v !== 0 && v !== 1) return false;
+    if (q && !(n.toLowerCase().includes(q) || HEX(h).toLowerCase().includes(q))) return false;
+    if (cat && flagGroup(n) !== cat) return false;
+    if (stt === 'on' && !v) return false;
+    if (stt === 'off' && v) return false;
+    if (stt === 'chg' && v === st.orig.p.u32(h)) return false;
+    return true;
+  });
+  const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
+  st.flagPage = Math.min(st.flagPage, pages - 1);
+  const start = st.flagPage * PER_PAGE;
+  const rows = list.slice(start, start + PER_PAGE).map(([h, n]) => {
+    const cb = el('input', { type: 'checkbox', checked: p.u32(h) === 1 });
+    const tr = el('tr', { className: changed(h) ? 'chg' : '' }, el('td', {}, el('code', { textContent: n })), el('td', {}, el('code', { textContent: HEX(h) })), el('td', {}, cb));
+    cb.addEventListener('change', () => { p.setInt(h, cb.checked ? 1 : 0); tr.className = changed(h) ? 'chg' : ''; afterEdit(); });
+    return tr;
+  });
+  $('flagRows').replaceChildren(...(rows.length ? rows : [el('tr', {}, el('td', { colSpan: 3, textContent: t('noFlags') }))]));
+  $('flagCount').textContent = list.length ? t('rangeOf', start + 1, start + rows.length, list.length) : '0';
+  $('flagPrev').disabled = st.flagPage === 0; $('flagNext').disabled = st.flagPage >= pages - 1;
+}
+const EDITABLE = new Set(['Bool', 'Int', 'UInt', 'Float', 'Enum', 'String32', 'String64', 'Vector3', 'Int64', 'UInt64']);
+function advInput(p, h, type, onDone) {
+  if (type === 'Bool') {
+    const r = p.u32(h);
+    if (r !== 0 && r !== 1) return el('code', { textContent: HEX(r) });
+    const cb = el('input', { type: 'checkbox', checked: r === 1 });
+    cb.addEventListener('change', () => { p.setInt(h, cb.checked ? 1 : 0); onDone(); });
+    return cb;
+  }
+  if (!EDITABLE.has(type)) return el('code', { textContent: fmtVal(p, h, type) });
+  const inp = el('input', { type: 'text', value: fmtVal(p, h, type) });
+  inp.addEventListener('change', () => {
+    try {
+      const s = inp.value.trim();
+      const num = () => { const n = /^0x/i.test(s) ? parseInt(s, 16) : Number(s); if (!Number.isFinite(n)) throw Error(t('eInvalid')); return n; };
+      switch (type) {
+        case 'Int': { const n = num(); if (!Number.isInteger(n) || n < -2147483648 || n > 2147483647) throw Error(t('eInvalid')); p.setInt(h, n); break; }
+        case 'UInt': case 'Enum': { const n = num(); if (!Number.isInteger(n) || n < 0 || n > 0xFFFFFFFF) throw Error(t('eInvalid')); p.setU32(h, n); break; }
+        case 'Float': p.setF32(h, num()); break;
+        case 'String32': p.setStr(h, 32, s); break;
+        case 'String64': p.setStr(h, 64, s); break;
+        case 'Int64': p.view.setBigInt64(p.block(h, 8), BigInt(s), true); break;
+        case 'UInt64': p.view.setBigUint64(p.block(h, 8), BigInt(s), true); break;
+        case 'Vector3': {
+          const parts = s.split(/[\/;, ]+/).filter(Boolean).map(Number);
+          if (parts.length !== 3 || parts.some(x => !Number.isFinite(x))) throw Error('X / Y / Z');
+          const o = p.block(h, 12); parts.forEach((x, i) => p.view.setFloat32(o + i * 4, x, true)); break;
+        }
+      }
+      onDone();
+    } catch (e) { toast(t('badValue', e.message)); inp.value = fmtVal(p, h, type); }
+  });
+  return inp;
+}
+let ADV_LIST = null;
+function renderAdv() {
+  const { p } = st;
+  if (!ADV_LIST) ADV_LIST = CAT.fields.map(([h, ty, n]) => [h, TYPES[ty], n || '']).sort((a, b) => (!a[2] - !b[2]) || a[2].localeCompare(b[2]) || a[0] - b[0]);
+  const q = $('advSearch').value.trim().toLowerCase(), type = $('advType').value, mode = $('advNamed').value;
+  const list = ADV_LIST.filter(([h, ty, n]) => {
+    if (!p.has(h)) return false;
+    if (type && ty !== type) return false;
+    if (mode === 'named' && !n) return false;
+    if (mode === 'chg' && !changed(h)) return false;
+    if (q && !(n.toLowerCase().includes(q) || HEX(h).toLowerCase().includes(q) || (q.length > 1 && fmtVal(p, h, ty).toLowerCase() === q))) return false;
+    return true;
+  });
+  const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
+  st.advPage = Math.min(st.advPage, pages - 1);
+  const start = st.advPage * PER_PAGE;
+  const rows = list.slice(start, start + PER_PAGE).map(([h, ty, n]) => {
+    const tr = el('tr', { className: changed(h) ? 'chg' : '' });
+    tr.append(el('td', {}, el('code', { textContent: n || '—' })), el('td', {}, el('code', { textContent: HEX(h) })), el('td', { textContent: ty }),
+      el('td', {}, advInput(p, h, ty, () => { tr.className = changed(h) ? 'chg' : ''; afterEdit(true); })));
+    return tr;
+  });
+  $('advRows').replaceChildren(...(rows.length ? rows : [el('tr', {}, el('td', { colSpan: 4, textContent: t('noFields') }))]));
+  $('advCount').textContent = list.length ? t('rangeOf', start + 1, start + rows.length, list.length) : '0';
+  $('advPrev').disabled = st.advPage === 0; $('advNext').disabled = st.advPage >= pages - 1;
+}
+function renderOptions() {
+  const vs = $('voice');
+  vs.replaceChildren(...voiceLanguages.map(([h, n]) => new Option(L(n), h)));
+  if (st.o) {
+    const cur = st.o.u32(VOICE);
+    if (!voiceLanguages.some(([h]) => h === cur)) vs.add(new Option(t('unknown') + ' ' + HEX(cur), cur));
+    vs.value = String(cur); vs.disabled = false;
+    $('optInfo').textContent = t('optAll');
+    mark('voice', cur !== st.orig.o.u32(VOICE));
+  } else { vs.disabled = true; $('optInfo').textContent = t('optMissing'); }
+}
+function parseBackupId(id) { const m = id.match(/^(\d{4})-(\d\d)-(\d\d)_(\d\d)-(\d\d)-(\d\d)/); return m ? new Date(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +m[6]) : null; }
+async function renderBackups() {
+  $('bkText').textContent = st.helper ? t('bkTextHelper') : t('bkTextManual');
+  $('bkFolderRow').hidden = !st.helper;
+  if (!st.helper) { $('bkRows').replaceChildren(); return; }
+  try {
+    const { dir, backups } = await api('backups', { root: st.dir.root });
+    $('bkFolderPath').textContent = dir;
+    const rows = backups.map(b => {
+      const d = parseBackupId(b.id);
+      const btn = el('button', { className: 'small', textContent: t('restore') });
+      btn.addEventListener('click', () => restoreBackup(b, d));
+      return el('tr', {}, el('td', { textContent: d ? fmtDate(d) : b.id }), el('td', {}, el('code', { textContent: b.files.join(', ') })), el('td', {}, btn));
+    });
+    $('bkRows').replaceChildren(...(rows.length ? rows : [el('tr', {}, el('td', { colSpan: 3, textContent: t('noBackups') }))]));
+  } catch (e) { $('bkRows').replaceChildren(el('tr', {}, el('td', { colSpan: 3, className: 'err', textContent: e.message }))); }
+}
+
+/* ---------- Editing ---------- */
+function afterEdit(skipAdv) {
+  renderOverview(); renderStatus(); renderSupplies(); renderKeys(); renderBottles(); renderItems(); renderSongs(); renderLocs(); renderRecords();
+  if (!skipAdv) renderAdv();
+  updateChanges();
+}
+function apply(fn) { try { fn(); } catch (e) { toast(e.message); } afterEdit(); }
+function vitalsFromInputs() { return { maxHearts: $('maxHearts').valueAsNumber, hearts: $('hearts').valueAsNumber, maxMagic: Number($('maxMagic').value), magic: $('maxMagic').value === '0' ? 0 : $('magic').valueAsNumber }; }
+function applyVitals(v) { apply(() => { const origMax = readVitals(st.orig.p, isLegacyMagic(st.orig.p)).maxMagic; writeVitals(st.p, st.c, v, v.maxMagic > origMax || st.legacy); st.legacy = false; }); }
+
+/* ---------- Saving ---------- */
+function download(data, name) { const a = el('a', { href: URL.createObjectURL(new Blob([data])), download: name }); document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000); }
+async function save() {
+  const btn = $('btnSave'); btn.disabled = true;
+  try {
+    const { p, c, o, slot } = st;
+    if (st.legacy) { writeVitals(p, c, readVitals(p, true), true); st.legacy = false; }
+    registerInventory(p, CAT.registrations);
+    const issues = validateSlot(p);
+    if (issues.length && !confirm(t('confirmIssues', issues.join('\n• ')))) return;
+    parseSave(p.bytes.slice(), PROGRESS_HDR); parseSave(c.bytes.slice(), SMALL_HDR);
+    const out = [];
+    if (bytesDiffer(p.bytes, slot.progress.bytes)) out.push([slot.progress, p.bytes]);
+    if (bytesDiffer(c.bytes, slot.caption.bytes)) out.push([slot.caption, c.bytes]);
+    if (o && bytesDiffer(o.bytes, slot.option.bytes)) out.push([slot.option, o.bytes]);
+    if (!out.length) { toast(t('nothingToSave')); return; }
+    if (st.helper) {
+      const emu = await emuStatus();
+      const running = emu.find(e => e.game);
+      if (running && !confirm(t('gameRunningConfirm', running.name))) return;
+      st.batch = stamp();
+      for (const [file] of out) {
+        const disk = await file.handle.read();
+        if (bytesDiffer(disk, file.bytes) && !confirm(t('diskChanged', file.path))) return;
+      }
+      const paths = [];
+      for (const [file, data] of out) { const r = await file.handle.write(data); paths.push(r.path); file.bytes = data.slice(); }
+      slot.meta = slotMeta(slot);
+      toast(t('savedHelper', paths.join('\n')) + '\n' + t('loadHint', slot.label), 12000);
+    } else {
+      for (const [file] of out) download(file.bytes, 'backup_' + file.role + '.sav');
+      await new Promise(r => setTimeout(r, 400));
+      for (const [file, data] of out) download(data, file.role + '.sav');
+      for (const [file, data] of out) file.bytes = data.slice();
+      toast(t('savedManual'), 14000);
+    }
+    loadSlot(st.slots.indexOf(slot));
+  } catch (e) { toast(t('saveErr', e.message), 9000); }
+  finally { btn.disabled = false; updateChanges(); }
+}
+async function restoreBackup(b, d) {
+  if (!confirm(t('confirmRestore', d ? fmtDate(d) : b.id))) return;
+  try {
+    await api('restore', { root: st.dir.root, id: b.id }, { method: 'POST' });
+    const cur = st.slots.indexOf(st.slot);
+    await openRemote(st.dir.root);
+    if (st.slots[cur]) openSlot(cur);
+    toast(t('restored'));
+  } catch (e) { toast(t('restoreErr', e.message), 8000); }
+}
+
+/* ---------- Manual mode (no helper) ---------- */
+async function collectFromFileList(files) {
+  const out = [];
+  for (const f of files) if (/\.sav$/i.test(f.name) && f.size <= 4 << 20) out.push({ path: f.webkitRelativePath || f.name, name: f.name, bytes: new Uint8Array(await f.arrayBuffer()), handle: null });
+  return out;
+}
+
+/* ---------- Events ---------- */
+function wire() {
+  $('langEn').addEventListener('click', () => setLang('en'));
+  $('langPt').addEventListener('click', () => setLang('pt'));
+  $('tabs').addEventListener('click', e => {
+    const b = e.target.closest('button[data-tab]'); if (!b) return;
+    document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll('section.tab').forEach(s => s.classList.toggle('on', s.id === b.dataset.tab));
+    if (b.dataset.tab === 't-backups') renderBackups();
+    window.scrollTo({ top: 0 });
+  });
+  $('wallet').addEventListener('change', () => apply(() => { const w = wallets.find(x => x.id === $('wallet').value); setWallet(st.p, w); if (st.p.int(K.rupees) > w.limit) setRupees(st.p, st.c, w.limit); }));
+  $('rupees').addEventListener('change', () => apply(() => { const w = walletOf(st.p), n = $('rupees').valueAsNumber; if (!Number.isInteger(n) || n < 0 || n > w.limit) throw Error(t('eRange', t('rupees'), w.limit)); setRupees(st.p, st.c, n); }));
+  for (const id of ['maxHearts', 'hearts', 'magic', 'maxMagic']) $(id).addEventListener('change', () => {
+    const v = vitalsFromInputs();
+    if (id === 'maxHearts' && v.hearts > v.maxHearts) v.hearts = v.maxHearts;
+    if (id === 'maxMagic') v.magic = Math.min(Number.isFinite(v.magic) ? v.magic : 0, v.maxMagic);
+    applyVitals(v);
+  });
+  const fillAmmo = () => { for (const item of supplies) { const g = capGroups.find(g => g.id === item.group); if (g) setAmount(st.p, item, capacity(st.p, g)); } };
+  $('qFull').addEventListener('click', () => { const v = readVitals(st.p, st.legacy); v.hearts = v.maxHearts; v.magic = v.maxMagic; applyVitals(v); toast(t('tFull')); });
+  $('qRupees').addEventListener('click', () => apply(() => { setRupees(st.p, st.c, walletOf(st.p).limit); toast(t('tRupees')); }));
+  $('qAmmo').addEventListener('click', () => apply(() => { fillAmmo(); toast(t('tAmmo')); }));
+  $('qBags').addEventListener('click', () => apply(() => { for (const g of capGroups) upgradeBag(st.p, g, g.tiers.length - 1); fillAmmo(); toast(t('tBags')); }));
+  $('qSongs').addEventListener('click', () => apply(() => { for (const s of songs) if (st.p.has(s.get)) setSong(st.p, s, true); toast(t('tSongs')); }));
+  $('allLocs').addEventListener('click', () => apply(() => { for (const l of locations) if (st.p.has(l.hash)) st.p.setInt(l.hash, 1); }));
+  $('itemSearch').addEventListener('input', renderItems); $('itemCat').addEventListener('change', renderItems); $('itemStatus').addEventListener('change', renderItems);
+  $('addAllShown').addEventListener('click', () => apply(() => { let n = 0; for (const [h] of itemRowsData()) if (st.p.int(h) === 0) { st.p.setInt(h, 1); n++; } toast(t('tItems', n)); }));
+  const fl = () => { st.flagPage = 0; renderFlags(); };
+  $('flagSearch').addEventListener('input', fl); $('flagCat').addEventListener('change', fl); $('flagStatus').addEventListener('change', fl);
+  $('flagPrev').addEventListener('click', () => { st.flagPage--; renderFlags(); }); $('flagNext').addEventListener('click', () => { st.flagPage++; renderFlags(); });
+  const ad = () => { st.advPage = 0; renderAdv(); };
+  $('advSearch').addEventListener('input', ad); $('advType').addEventListener('change', ad); $('advNamed').addEventListener('change', ad);
+  $('advPrev').addEventListener('click', () => { st.advPage--; renderAdv(); }); $('advNext').addEventListener('click', () => { st.advPage++; renderAdv(); });
+  $('voice').addEventListener('change', () => apply(() => st.o.setU32(VOICE, Number($('voice').value))));
+  $('btnUndo').addEventListener('click', () => { if (confirm(t('confirmUndo'))) loadSlot(st.slots.indexOf(st.slot)); });
+  $('slot').addEventListener('change', e => {
+    if (countChanges() && !confirm(t('confirmSwitch'))) { e.target.value = st.slots.indexOf(st.slot); return; }
+    loadSlot(Number(e.target.value));
+  });
+  $('btnSave').addEventListener('click', save);
+  $('openBkFolder').addEventListener('click', () => api('openbackups', {}, { method: 'POST' }).catch(e => toast(e.message)));
+  $('btnOtherFolder').addEventListener('click', () => { if (st.helper) { showBox('folderBox'); if (st.scan) showFolders(st.scan); } else showBox('manualBox'); });
+  $('btnBrowse').addEventListener('click', async () => {
+    setMsg('landMsg', t('browseHint'));
+    try { const r = await api('browse', {}, { method: 'POST' }); setMsg('landMsg', ''); if (r.root) { showFolders(r.scan); await openRemote(r.root); } }
+    catch (e) { setMsg('landMsg', e.message, 'err'); }
+  });
+  $('customGo').addEventListener('click', async () => {
+    try { const r = await api('addroot', {}, { method: 'POST', body: $('customPath').value }); showFolders(r.scan); await openRemote(r.root); }
+    catch (e) { setMsg('landMsg', e.message, 'err'); }
+  });
+  $('btnFiles').addEventListener('click', () => $('fileInput').click());
+  $('btnManual2').addEventListener('click', () => { enterManual(); $('fileInput').click(); });
+  $('fileInput').addEventListener('change', async e => {
+    const slots = buildSlots(await collectFromFileList(e.target.files));
+    if (!slots.length) { setMsg('manualMsg', t('noSaveFound'), 'err'); return; }
+    st.slots = slots; st.dir = null; showSlotPicker();
+  });
+  window.addEventListener('beforeunload', e => { if (st.p && countChanges()) { e.preventDefault(); e.returnValue = ''; } });
+}
+
+wire();
+applyStatic();
+if (HELPER_TOKEN) startHelper(); else showBox('manualBox');
+</script>
+</body>
+</html>
