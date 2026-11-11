@@ -527,7 +527,7 @@ header.top{flex-wrap:nowrap}
     <div class="or" data-t="orManual"></div>
     <div class="btnrow"><button id="btnBrowse" class="big" data-t="browse"></button></div>
     <div class="or" data-t="orPaste"></div>
-    <div class="pathrow"><input type="text" id="customPath" placeholder="C:\Users\...\AppData\Roaming\eden\nand\user\save\0000000000000000\...\0400486024DEC000"><button id="customGo" class="primary" data-t="useFolder"></button></div>
+    <div class="pathrow"><input type="text" id="customPath" placeholder="C:\Users\...\AppData\Roaming\...\nand\user\save\0000000000000000\...\0400486024DEC000"><button id="customGo" class="primary" data-t="useFolder"></button></div>
     <div id="landMsg"></div>
     <div class="or" data-t="orManualFiles"></div>
     <div class="btnrow"><button id="btnManual2" class="small" data-t="manualBtn"></button></div>
@@ -723,7 +723,7 @@ const I18N = {
   foundOne: ['Save folder found. Click it to open:', 'Pasta de saves encontrada. Clique para abrir:'],
   foundMany: ['More than one emulator/user has saves for this game:', 'Mais de um emulador/usuário tem saves deste jogo:'],
   notFound: ['Save folder not found automatically', 'Não achei a pasta de saves automaticamente'],
-  notFoundText: ['I looked in AppData for Eden, yuzu, suyu, sudachi, citron and torzu. Locate it manually below.', 'Procurei no AppData do Eden, yuzu, suyu, sudachi, citron e torzu. Localize manualmente abaixo.'],
+  notFoundText: ['I looked in the usual emulator folders in AppData. Locate it manually below.', 'Procurei nas pastas de emulador de costume no AppData. Localize manualmente abaixo.'],
   orManual: ['Different install or folder? Locate it manually:', 'Instalação ou pasta diferente? Localize manualmente:'],
   browse: ['Browse for progress.sav…', 'Procurar o progress.sav…'],
   orPaste: ['or paste the path of the save folder (0400486024DEC000), a slot folder or progress.sav:', 'ou cole o caminho da pasta de saves (0400486024DEC000), de um slot ou do progress.sav:'],
@@ -838,7 +838,7 @@ const I18N = {
   dupSlots: ['Warning: more than one folder named {0} was found ({1}). Make sure you pick the one the game uses.', 'Atenção: encontrei mais de uma pasta chamada {0} ({1}). Confira qual delas o jogo usa.'],
   fileModified: ['file modified {0}', 'arquivo modificado {0}'],
   oldHelper: ['An OLD version of the helper is answering. Close ALL black editor windows, then open Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat again.', 'Uma versão ANTIGA do ajudante está respondendo. Feche TODAS as janelas pretas do editor e abra de novo o Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat.'],
-  checkFolder: ['Check that this is the same folder Eden uses: in Eden, right-click the game → Open Save Data Location.', 'Confira se é a mesma pasta que o Eden usa: no Eden, clique com o botão direito no jogo → Abrir local dos dados salvos.'],
+  checkFolder: ['Check that this is the same folder your emulator uses: in the emulator, right-click the game → Open Save Data Location.', 'Confira se é a mesma pasta que o seu emulador usa: no emulador, clique com o botão direito no jogo → Abrir local dos dados salvos.'],
   newestSave: ['latest save {0}', 'último save {0}'],
   orManualFiles: ['Or edit files manually (like the first version): pick progress.sav and caption.sav, and the edited files are downloaded for you to copy back.', 'Ou edite os arquivos manualmente (como na primeira versão): escolha progress.sav e caption.sav e os editados são baixados para você copiar de volta.'],
   manualBtn: ['Pick files manually…', 'Escolher arquivos manualmente…'],

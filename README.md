@@ -1,6 +1,6 @@
 # Zelda Ocarina of Time 2026 Remake Save Editor
 
-Save editor for the **2026 remake** of **Zelda: Ocarina of Time** (Nintendo Switch 2) **on PC**. It edits the save files on your Windows computer, used by the **Eden** emulator.
+Save editor for the **2026 remake** of **Zelda: Ocarina of Time** (Nintendo Switch 2) **on PC**. It edits the save files used by the emulator on your Windows computer.
 
 > ⚠️ Only for the **2026 remake**. It does **not** work with the original N64 game, Ocarina of Time 3D or PC ports such as Ship of Harkinian.
 
@@ -27,9 +27,9 @@ Requirements: Windows 10 or 11 (uses the built-in PowerShell) and any modern bro
 
 The interface is available in **English** and **Portuguese** (EN/PT buttons in the top-right corner).
 
-Default save folder for Eden:
-`%APPDATA%\eden\nand\user\save\0000000000000000\<your user id>\0400486024DEC000`
-(in Eden: right-click the game → Open Save Data Location).
+The editor finds the save folder automatically. It usually looks like:
+`%APPDATA%\<emulator>\nand\user\save\0000000000000000\<your user id>\0400486024DEC000`
+(in the emulator: right-click the game → Open Save Data Location).
 
 ## Features
 
@@ -70,7 +70,7 @@ Unofficial fan tool, not affiliated with Nintendo. Always keep a backup of your 
 
 ## Português
 
-Editor de save do **remake de 2026** de **Zelda: Ocarina of Time** (Nintendo Switch 2) **para PC**. Edita os arquivos de save no seu computador com Windows, usados pelo emulador **Eden**.
+Editor de save do **remake de 2026** de **Zelda: Ocarina of Time** (Nintendo Switch 2) **para PC**. Edita os arquivos de save usados pelo emulador no seu computador com Windows.
 
 > ⚠️ Somente para o **remake de 2026**. **Não** funciona com o jogo original de N64, com o Ocarina of Time 3D nem com ports para PC como o Ship of Harkinian.
 
@@ -93,9 +93,9 @@ Requisitos: Windows 10 ou 11 (usa o PowerShell que já vem no sistema) e qualque
 
 A interface está em **inglês** e **português** (botões EN/PT no canto superior direito); ela sempre abre em inglês.
 
-Pasta padrão do Eden:
-`%APPDATA%\eden\nand\user\save\0000000000000000\<id do seu usuário>\0400486024DEC000`
-(no Eden: botão direito no jogo → Abrir local dos dados salvos).
+O editor encontra a pasta de saves sozinho. Normalmente ela é parecida com:
+`%APPDATA%\<emulador>\nand\user\save\0000000000000000\<id do seu usuário>\0400486024DEC000`
+(no emulador: botão direito no jogo → Abrir local dos dados salvos).
 
 ### Recursos
 
