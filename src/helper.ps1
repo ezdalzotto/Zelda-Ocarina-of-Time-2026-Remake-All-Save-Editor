@@ -18,7 +18,7 @@ $htmlBytes = [Text.Encoding]::UTF8.GetBytes($raw.Substring($htmlStart + $marker.
 $titleId = '0400486024DEC000'
 $relPattern = '^([A-Za-z0-9_\-]+/){0,2}(progress|caption|option)\.sav$'
 $roots = New-Object System.Collections.ArrayList
-$emulators = @('eden', 'yuzu', 'suyu', 'sudachi', 'citron', 'torzu')
+$emulators = @('eden', 'fritchii', 'yuzu', 'suyu', 'sudachi', 'citron', 'torzu')
 
 function Get-DownloadsDir {
   $d = $null
@@ -163,7 +163,7 @@ function Backups-Json([string]$root) {
 
 function Status-Json {
   $items = @()
-  foreach ($pr in @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -match '^(eden|yuzu|suyu|sudachi|citron|torzu)' })) {
+  foreach ($pr in @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -match '^(eden|fritchii|yuzu|suyu|sudachi|citron|torzu)' })) {
     $title = ''
     try { $title = [string]$pr.MainWindowTitle } catch { }
     $g = 'false'

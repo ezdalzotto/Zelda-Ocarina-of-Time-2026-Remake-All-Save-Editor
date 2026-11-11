@@ -8,6 +8,8 @@ Save editor for the **2026 remake** of **Zelda: Ocarina of Time** (Nintendo Swit
 
 🇧🇷 [Leia em português](#português)
 
+![Zelda Ocarina of Time 2026 Remake Save Editor](docs/screenshot.png)
+
 ---
 
 ## Download
