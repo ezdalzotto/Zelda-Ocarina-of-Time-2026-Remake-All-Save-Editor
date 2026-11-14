@@ -116,7 +116,7 @@ header.top{flex-wrap:nowrap}
 <body>
 <header class="top">
   <svg class="tri" viewBox="0 0 60 52" aria-hidden="true"><g fill="#e2c27a"><path d="M30 0 45 26H15z"/><path d="M15 26 30 52H0z"/><path d="M45 26 60 52H30z"/></g></svg>
-  <h1>Zelda Ocarina of Time 2026 Remake Save Editor <span style="font-weight:400;color:var(--muted);font-size:.8rem">v1.1</span><small><span data-t="by"></span> Ernani Zanandrea Dalzotto · <a href="https://github.com/ezdalzotto" target="_blank" rel="noopener">github.com/ezdalzotto</a> · <span id="folderName"></span></small></h1>
+  <h1>Zelda Ocarina of Time 2026 Remake Save Editor <span style="font-weight:400;color:var(--muted);font-size:.8rem">v1.1.1</span><small><span data-t="by"></span> Ernani Zanandrea Dalzotto · <a href="https://github.com/ezdalzotto" target="_blank" rel="noopener">github.com/ezdalzotto</a> · <span id="folderName"></span></small></h1>
   <span class="sp"></span>
   <span id="slotbox" hidden><select id="slot" aria-label="Slot"></select></span>
   <span id="changes"></span>
@@ -488,6 +488,8 @@ const I18N = {
   savedFolder: ['Done! Written into the folder “{0}”. Your originals were downloaded as backup_*.sav. Start the game and load the slot.', 'Pronto! Gravado na pasta “{0}”. Seus originais foram baixados como backup_*.sav. Abra o jogo e carregue o slot.'],
   folderBlocked: ['The browser could not use that folder ({0}). Use “Download” and copy the files manually.', 'O navegador não conseguiu usar essa pasta ({0}). Use “Baixar” e copie os arquivos manualmente.'],
   optionDownloaded: ['option.sav was downloaded too: put it in the 0400486024DEC000 folder.', 'O option.sav também foi baixado: coloque-o na pasta 0400486024DEC000.'],
+  rupeesHint: ['Your wallet holds {0}. Type more and the wallet is upgraded automatically (up to {1}).', 'Sua carteira comporta {0}. Digite mais e a carteira é melhorada automaticamente (até {1}).'],
+  walletUpgraded: ['Wallet upgraded to {0} ({1}) to fit the rupees.', 'Carteira melhorada para {0} ({1}) para caber as rupias.'],
   loadHint: ['Now start the game in the emulator and load {0}.', 'Agora abra o jogo no emulador e carregue o {0}.'],
 };
 let LANG = 'en';
@@ -1092,8 +1094,8 @@ function renderStatus() {
   const w = walletOf(p), ws = $('wallet');
   ws.replaceChildren(...wallets.map(x => new Option(L(x.label) + ' · ' + x.limit, x.id)));
   ws.value = w ? w.id : '';
-  $('rupees').value = p.int(K.rupees); $('rupees').max = w ? w.limit : 0;
-  $('rupeesHint').textContent = t('maxN', w ? w.limit : '?');
+  $('rupees').value = p.int(K.rupees); $('rupees').max = wallets.at(-1).limit;
+  $('rupeesHint').textContent = t('rupeesHint', w ? w.limit : '?', wallets.at(-1).limit);
   mark('wallet', changed(K.wallet)); mark('rupees', changed(K.rupees));
   const v = readVitals(p, st.legacy), ov = readVitals(st.orig.p, isLegacyMagic(st.orig.p));
   $('maxHearts').value = v.maxHearts; $('hearts').value = v.hearts; $('hearts').max = v.maxHearts;
@@ -1445,7 +1447,13 @@ function wire() {
     window.scrollTo({ top: 0 });
   });
   $('wallet').addEventListener('change', () => apply(() => { const w = wallets.find(x => x.id === $('wallet').value); setWallet(st.p, w); if (st.p.int(K.rupees) > w.limit) setRupees(st.p, st.c, w.limit); }));
-  $('rupees').addEventListener('change', () => apply(() => { const w = walletOf(st.p), n = $('rupees').valueAsNumber; if (!Number.isInteger(n) || n < 0 || n > w.limit) throw Error(t('eRange', t('rupees'), w.limit)); setRupees(st.p, st.c, n); }));
+  $('rupees').addEventListener('change', () => apply(() => {
+    const n = $('rupees').valueAsNumber, top = wallets.at(-1).limit;
+    if (!Number.isInteger(n) || n < 0 || n > top) throw Error(t('eRange', t('rupees'), top));
+    const w = walletOf(st.p);
+    if (!w || n > w.limit) { const nw = wallets.find(x => x.limit >= n); setWallet(st.p, nw); toast(t('walletUpgraded', L(nw.label), nw.limit)); }
+    setRupees(st.p, st.c, n);
+  }));
   for (const id of ['maxHearts', 'hearts', 'magic', 'maxMagic']) $(id).addEventListener('change', () => {
     const v = vitalsFromInputs();
     if (id === 'maxHearts' && v.hearts > v.maxHearts) v.hearts = v.maxHearts;
