@@ -14,24 +14,24 @@ Save editor for the **2026 remake** of **Zelda: Ocarina of Time** (Nintendo Swit
 
 ## Download
 
-Download **[Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat](Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat)** (open the file and click **Download raw file**). It is a single file: nothing to install.
+Download **[Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.html](Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.html)** (open the file and click **Download raw file**). It is a single page that runs in your browser: nothing to install.
 
-Requirements: Windows 10 or 11 (uses the built-in PowerShell) and any modern browser.
+Works with **any emulator and any save folder**.
 
 ## How to use
 
-1. **Stop the game in the emulator** (Emulation → Stop). The game keeps the save in memory and overwrites the file when it saves again or quits.
-2. Double-click `Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat`. A black window opens (keep it open) and the editor opens in your browser.
-3. Click the save folder that was found, or locate it manually (**Browse for progress.sav…** or paste the path).
-4. **Choose the slot.** Compare hearts, rupees, location and date with what the game shows. In-game "Slot 1" may be the `slot_00` folder.
-5. Edit and click **Save to game**.
-6. Start the game again and load the slot.
+1. **Stop the game in your emulator** (Emulation → Stop).
+2. Open the save folder: in the emulator, right-click the game → **Open Save Data Location**, then open the slot folder (`slot_00`, `slot_01`…).
+3. Open the `.html` file in your browser and drag `progress.sav` and `caption.sav` into it (or click **Choose progress.sav and caption.sav…**).
+4. Edit and click **Save**. Your original files are downloaded first as a backup (`backup_*.sav`).
+5. **Copy the edited `progress.sav` and `caption.sav` back into the same slot folder**, replacing the old ones. If the browser renamed them (e.g. `progress (1).sav`), rename them first.
+6. Start the game and load the slot.
+
+In Chrome/Edge you can also choose **Write directly into a folder…** to skip the copy step (does not work for folders inside `AppData`, which the browser blocks).
 
 The interface is available in **English** and **Portuguese** (EN/PT buttons in the top-right corner).
 
-The editor finds the save folder automatically. It usually looks like:
-`%APPDATA%\<emulator>\nand\user\save\0000000000000000\<your user id>\0400486024DEC000`
-(in the emulator: right-click the game → Open Save Data Location).
+The save folder usually ends with `…\user\save\0000000000000000\<user id>\0400486024DEC000\slot_XX`. Where it is depends on your emulator.
 
 ## Features
 
@@ -47,20 +47,12 @@ The editor finds the save folder automatically. It usually looks like:
 
 ## Safety
 
-- **Automatic backups** before every save in `Downloads\Zelda OoT Save Editor - Backups`, with a **Restore** button in the Backups tab.
-- After writing, the helper reads the file back from disk and checks that it matches what was sent.
-- Warns when the game seems to be running in the emulator.
-- Everything runs on your computer. The helper only listens on `127.0.0.1`, uses a random token per session and only reads and writes `progress.sav`, `caption.sav` and `option.sav`. Nothing is sent to the internet.
-
-**Manual mode:** if you prefer, use **Pick files manually…**. The edited files are downloaded and you copy them back into the slot folder.
-
-**Windows warning:** files downloaded from the internet may show "Windows protected your PC". Click **More info → Run anyway**.
+- **Automatic backup:** every time you save, your original files are downloaded first as `backup_<slot>_<date>_progress.sav` / `caption.sav`.
+- Everything runs in your browser. Nothing is installed and nothing is sent to the internet.
 
 ## How it works
 
-Browsers cannot write inside `AppData`, so the `.bat` starts a small PowerShell helper that serves the editor at `http://127.0.0.1` and does the reading and writing. Field names in the save are MurmurHash3 (x86, 32-bit, seed 0) hashes.
-
-Source code is in [`src/`](src): `editor.html` (interface), `helper.ps1` (local helper), `catalog.json` (field list) and `build.py` (generates the `.bat`).
+Field names in the save are MurmurHash3 (x86, 32-bit, seed 0) hashes. Source code is in [`src/`](src): `editor.html` (interface), `catalog.json` (field list) and `build.py` (generates the final `.html`).
 
 ## License
 
@@ -80,24 +72,24 @@ Editor de save do **remake de 2026** de **Zelda: Ocarina of Time** (Nintendo Swi
 
 ### Download
 
-Baixe o **[Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat](Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat)** (abra o arquivo e clique em **Download raw file**). É um único arquivo: não precisa instalar nada.
+Baixe o **[Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.html](Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.html)** (abra o arquivo e clique em **Download raw file**). É uma página única que roda no navegador: não precisa instalar nada.
 
-Requisitos: Windows 10 ou 11 (usa o PowerShell que já vem no sistema) e qualquer navegador atual.
+Funciona com **qualquer emulador e qualquer pasta de save**.
 
 ### Como usar
 
-1. **Pare o jogo no emulador** (Emulação → Parar). O jogo guarda o save na memória e grava por cima do arquivo quando salva de novo ou ao sair.
-2. Dê dois cliques no `Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat`. Abre uma janela preta (deixe aberta) e o editor aparece no navegador.
-3. Clique na pasta de saves encontrada ou localize manualmente (**Procurar o progress.sav…** ou cole o caminho).
-4. **Escolha o slot.** Compare corações, rupias, local e data com o que o jogo mostra. O "Slot 1" do jogo pode ser a pasta `slot_00`.
-5. Edite e clique em **Salvar no jogo**.
-6. Abra o jogo de novo e carregue o slot.
+1. **Pare o jogo no emulador** (Emulação → Parar).
+2. Abra a pasta do save: no emulador, clique com o botão direito no jogo → **Abrir local dos dados salvos** e entre na pasta do slot (`slot_00`, `slot_01`…).
+3. Abra o arquivo `.html` no navegador e arraste o `progress.sav` e o `caption.sav` para ele (ou clique em **Escolher progress.sav e caption.sav…**).
+4. Edite e clique em **Salvar**. Os arquivos originais são baixados antes, como backup (`backup_*.sav`).
+5. **Copie o `progress.sav` e o `caption.sav` editados de volta para a mesma pasta do slot**, substituindo os antigos. Se o navegador renomeou (ex.: `progress (1).sav`), renomeie antes.
+6. Abra o jogo e carregue o slot.
+
+No Chrome/Edge também dá para escolher **Gravar direto numa pasta…** e pular a cópia (não funciona em pastas dentro do `AppData`, que o navegador bloqueia).
 
 A interface está em **inglês** e **português** (botões EN/PT no canto superior direito); ela sempre abre em inglês.
 
-O editor encontra a pasta de saves sozinho. Normalmente ela é parecida com:
-`%APPDATA%\<emulador>\nand\user\save\0000000000000000\<id do seu usuário>\0400486024DEC000`
-(no emulador: botão direito no jogo → Abrir local dos dados salvos).
+A pasta do save normalmente termina em `…\user\save\0000000000000000\<id do usuário>\0400486024DEC000\slot_XX`. O local depende do emulador.
 
 ### Recursos
 
@@ -113,14 +105,8 @@ O editor encontra a pasta de saves sozinho. Normalmente ela é parecida com:
 
 ### Segurança
 
-- **Backup automático** antes de cada gravação em `Downloads\Zelda OoT Save Editor - Backups`, com botão **Restaurar** na aba Backups.
-- Depois de gravar, o ajudante relê o arquivo do disco e confere se ficou igual ao que foi enviado.
-- Avisa quando o jogo parece estar rodando no emulador.
-- Tudo roda no seu computador. O ajudante só escuta em `127.0.0.1`, usa uma chave aleatória por sessão e só lê e grava `progress.sav`, `caption.sav` e `option.sav`. Nada é enviado para a internet.
-
-**Modo manual:** se preferir, use **Escolher arquivos manualmente…**. Os arquivos editados são baixados e você os copia de volta para a pasta do slot.
-
-**Aviso do Windows:** arquivos baixados da internet podem mostrar "O Windows protegeu o computador". Clique em **Mais informações → Executar assim mesmo**.
+- **Backup automático:** toda vez que você salva, os arquivos originais são baixados antes como `backup_<slot>_<data>_progress.sav` / `caption.sav`.
+- Tudo roda no navegador. Nada é instalado e nada é enviado para a internet.
 
 ### Licença
 

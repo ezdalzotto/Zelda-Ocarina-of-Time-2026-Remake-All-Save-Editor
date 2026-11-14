@@ -100,6 +100,13 @@ td input[type=text],td input[type=number]{padding:4px 7px;max-width:260px}
 .bottle{display:grid;grid-template-columns:110px 110px 1fr;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
 .bottle:last-child{border-bottom:0}
 #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--gold);padding:10px 18px;border-radius:10px;display:none;z-index:9;max-width:92vw;box-shadow:0 6px 30px #0008;white-space:pre-line;overflow-wrap:anywhere}
+ol.steps{text-align:left;margin:0 auto 16px;max-width:640px;padding-left:22px;color:var(--text)}
+ol.steps li{margin:6px 0}
+.dropzone{border:2px dashed var(--line);border-radius:12px;padding:22px;margin:0 auto 14px;max-width:640px;color:var(--muted)}
+.dropzone.over{border-color:var(--gold);background:#1c3128;color:var(--text)}
+.modal{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:20;padding:20px}
+.modalbox{background:var(--panel);border:1px solid var(--gold);border-radius:16px;padding:24px;max-width:520px;width:100%;text-align:center}
+.modalbox h2{margin:0 0 8px}.modalbox p{color:var(--muted)}
 footer{color:var(--muted);font-size:.8rem;text-align:center;padding:22px}
 header.top{flex-wrap:nowrap}
 @media (max-width:1100px){header.top{flex-wrap:wrap}}
@@ -109,7 +116,7 @@ header.top{flex-wrap:nowrap}
 <body>
 <header class="top">
   <svg class="tri" viewBox="0 0 60 52" aria-hidden="true"><g fill="#e2c27a"><path d="M30 0 45 26H15z"/><path d="M15 26 30 52H0z"/><path d="M45 26 60 52H30z"/></g></svg>
-  <h1>Zelda Ocarina of Time 2026 Remake Save Editor <span style="font-weight:400;color:var(--muted);font-size:.8rem">v1.0</span><small><span data-t="by"></span> Ernani Zanandrea Dalzotto · <a href="https://github.com/ezdalzotto" target="_blank" rel="noopener">github.com/ezdalzotto</a> · <span id="folderName"></span></small></h1>
+  <h1>Zelda Ocarina of Time 2026 Remake Save Editor <span style="font-weight:400;color:var(--muted);font-size:.8rem">v1.1</span><small><span data-t="by"></span> Ernani Zanandrea Dalzotto · <a href="https://github.com/ezdalzotto" target="_blank" rel="noopener">github.com/ezdalzotto</a> · <span id="folderName"></span></small></h1>
   <span class="sp"></span>
   <span id="slotbox" hidden><select id="slot" aria-label="Slot"></select></span>
   <span id="changes"></span>
@@ -148,7 +155,15 @@ header.top{flex-wrap:nowrap}
   <div id="manualBox" class="box" hidden>
     <h2 data-t="manualTitle"></h2>
     <p data-t="manualText"></p>
+    <ol class="steps">
+      <li data-t="step1"></li>
+      <li data-t="step2"></li>
+      <li data-t="step3"></li>
+      <li data-t="step4"></li>
+    </ol>
+    <div id="dropZone" class="dropzone"><span data-t="dropHere"></span></div>
     <div class="btnrow"><button id="btnFiles" class="primary big" data-t="pickFiles"></button></div>
+    <p class="sub" style="margin-top:14px;font-size:.86rem" data-t="whereSaves"></p>
     <input type="file" id="fileInput" multiple accept=".sav" hidden>
     <div id="manualMsg" style="margin-top:12px"></div>
   </div>
@@ -305,6 +320,18 @@ header.top{flex-wrap:nowrap}
   </div>
 </div>
 </main>
+<div id="saveDlg" class="modal" hidden>
+  <div class="modalbox">
+    <h2 data-t="saveDlgTitle"></h2>
+    <p data-t="saveDlgText"></p>
+    <div class="btnrow" style="flex-direction:column;align-items:stretch">
+      <button id="dlgDownload" class="primary big" data-t="dlgDownload"></button>
+      <button id="dlgFolder" class="big" data-t="dlgFolder"></button>
+      <button id="dlgCancel" class="small" data-t="dlgCancel"></button>
+    </div>
+    <p class="sub" style="margin-top:12px;font-size:.84rem" data-t="dlgNote"></p>
+  </div>
+</div>
 <div id="toast"></div>
 <footer>Zelda Ocarina of Time 2026 Remake Save Editor · <span data-t="by"></span> Ernani Zanandrea Dalzotto · <a href="https://github.com/ezdalzotto" target="_blank" rel="noopener">github.com/ezdalzotto</a> · <span data-t="footerNote"></span></footer>
 
@@ -315,7 +342,7 @@ header.top{flex-wrap:nowrap}
 const I18N = {
   by: ['by', 'por'],
   undo: ['Undo', 'Desfazer'],
-  save: ['Save to game', 'Salvar no jogo'],
+  save: ['Save', 'Salvar'],
   changesNone: ['No changes', 'Sem alterações'],
   changesN: ['{0} unsaved change(s)', '{0} alteração(ões) não salva(s)'],
   viaHelper: ['local helper', 'ajudante local'],
@@ -342,9 +369,9 @@ const I18N = {
   manualSave: ['manual save', 'save manual'],
   newest: ['most recent', 'mais recente'],
   lastEdited: ['last edited here', 'último editado aqui'],
-  manualTitle: ['Open the save files', 'Abra os arquivos do save'],
-  manualText: ['This page was opened without the helper, so it cannot write into the game folder. Run Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat to save directly. Here you can pick progress.sav and caption.sav (and option.sav); the edited files will be downloaded.', 'Esta página foi aberta sem o ajudante, então não consegue gravar na pasta do jogo. Rode o Zelda-Ocarina-of-Time-2026-Remake-Save-Editor.bat para salvar direto. Aqui você pode escolher progress.sav e caption.sav (e option.sav); os arquivos editados serão baixados.'],
-  pickFiles: ['Choose files…', 'Escolher arquivos…'],
+  manualTitle: ['Open your save files', 'Abra os arquivos do seu save'],
+  manualText: ['Works with any emulator and any save folder. Nothing is installed and nothing leaves your computer.', 'Funciona com qualquer emulador e qualquer pasta de save. Nada é instalado e nada sai do seu computador.'],
+  pickFiles: ['Choose progress.sav and caption.sav…', 'Escolher progress.sav e caption.sav…'],
   tabSummary: ['Summary', 'Resumo'], tabStatus: ['Rupees & life', 'Rupias e vida'], tabSupplies: ['Ammo & bags', 'Munição e bolsas'],
   tabItems: ['Items & equipment', 'Itens e equipamentos'], tabSongs: ['Songs', 'Canções'], tabBottles: ['Bottles', 'Garrafas'],
   tabKeys: ['Keys', 'Chaves'], tabLocs: ['Visited places', 'Locais visitados'], tabRecords: ['Records & counters', 'Recordes e contadores'],
@@ -402,7 +429,7 @@ const I18N = {
   optMissing: ['option.sav was not found. It is in the 0400486024DEC000 folder.', 'option.sav não encontrado. Ele fica na pasta 0400486024DEC000.'],
   backupsTitle: ['Automatic backups', 'Backups automáticos'],
   bkTextHelper: ['Before every save, the original files are copied to your Downloads folder. “Restore” writes a copy back into the game folder (the current files are backed up first).', 'Antes de cada gravação, os arquivos originais são copiados para a sua pasta Downloads. “Restaurar” grava a cópia de volta na pasta do jogo (os arquivos atuais são guardados antes).'],
-  bkTextManual: ['In manual mode, the original files are downloaded (backup_*.sav) to your Downloads folder before the edited ones.', 'No modo manual, os arquivos originais são baixados (backup_*.sav) para a pasta Downloads antes dos editados.'],
+  bkTextManual: ['Every time you save, your original files are downloaded first as backup_<slot>_<date>_progress.sav / caption.sav. To restore, rename them back to progress.sav / caption.sav and put them in the slot folder.', 'Toda vez que você salva, os arquivos originais são baixados antes como backup_<slot>_<data>_progress.sav / caption.sav. Para restaurar, renomeie de volta para progress.sav / caption.sav e coloque na pasta do slot.'],
   openBackupFolder: ['Open backup folder', 'Abrir pasta de backups'], thDate: ['Date', 'Data'], thFiles: ['Files', 'Arquivos'],
   restore: ['Restore', 'Restaurar'], noBackups: ['No backups yet. One is made automatically on the first save.', 'Nenhum backup ainda. Ele é criado automaticamente na primeira gravação.'],
   confirmRestore: ['Restore the backup from {0}?\nThe current game files will be replaced (and backed up first).', 'Restaurar o backup de {0}?\nOs arquivos atuais do jogo serão substituídos (e guardados antes).'],
@@ -412,7 +439,7 @@ const I18N = {
   aboutTech: ['Only for the 2026 remake of Ocarina of Time (Switch 2), not the N64/3DS versions. Works with its save files (progress.sav, caption.sav, option.sav). Field names are MurmurHash3 hashes; everything runs on your computer and nothing is sent to the internet.', 'Somente para o remake de 2026 do Ocarina of Time (Switch 2), não para as versões de N64/3DS. Funciona com os arquivos de save dele (progress.sav, caption.sav, option.sav). Os nomes dos campos são hashes MurmurHash3; tudo roda no seu computador e nada é enviado para a internet.'],
   disclaimer: ['Unofficial fan tool, not affiliated with Nintendo. Always keep a backup of your save.', 'Ferramenta de fã, não oficial e sem ligação com a Nintendo. Sempre guarde um backup do seu save.'],
   footerNote: ['credit required for modifications', 'crédito obrigatório em modificações'],
-  wManual: ['Manual mode: saving downloads the files and you have to copy them into the slot folder. To save directly, run the .bat file.', 'Modo manual: ao salvar, os arquivos são baixados e você precisa copiá-los para a pasta do slot. Para salvar direto, rode o arquivo .bat.'],
+  wManual: ['Editing a copy. When you save, put the edited progress.sav and caption.sav back into the slot folder (replacing the old ones) with the game stopped.', 'Você está editando uma cópia. Ao salvar, coloque o progress.sav e o caption.sav editados de volta na pasta do slot (substituindo os antigos), com o jogo parado.'],
   wVersion: ['Save version differs from the tested one ({0}). Use with care.', 'Versão do save diferente da testada ({0}). Use com cuidado.'],
   wWallet: ['Unknown wallet in the save.', 'Carteira desconhecida no save.'], wLimit: ['Rupee limit does not match the wallet.', 'Limite de rupias não bate com a carteira.'],
   wWalletOwned: ['The current wallet is not marked as owned.', 'A carteira atual não está marcada como possuída.'], wRupees: ['Rupee count out of range.', 'Quantidade de rupias fora do limite.'],
@@ -423,7 +450,7 @@ const I18N = {
   confirmIssues: ['Warning:\n• {0}\n\nSave anyway?', 'Atenção:\n• {0}\n\nSalvar mesmo assim?'],
   diskChanged: ['{0} changed on disk after you opened it (did the game save again?).\nOverwrite anyway?', '{0} mudou no disco depois que você abriu (o jogo salvou de novo?).\nSobrescrever mesmo assim?'],
   savedHelper: ['Saved and verified on disk:\n{0}\nBackup of the originals: Downloads\\Zelda OoT Save Editor - Backups', 'Salvo e conferido no disco:\n{0}\nBackup dos originais: Downloads\\Zelda OoT Save Editor - Backups'],
-  savedManual: ['Files downloaded (backup_*.sav = originals). Copy progress.sav and caption.sav back into the slot folder you took them from, replacing the old ones. If the browser renamed them (e.g. “progress (1).sav”), rename them back to progress.sav / caption.sav first.', 'Arquivos baixados (backup_*.sav = originais). Copie progress.sav e caption.sav de volta para a pasta do slot de onde você os tirou, substituindo os antigos. Se o navegador renomeou (ex.: “progress (1).sav”), renomeie de volta para progress.sav / caption.sav antes.'],
+  savedManual: ['Done! Your original files were downloaded as backup_*.sav.\nNow copy progress.sav and caption.sav into the slot folder, replacing the old ones. If the browser renamed them (e.g. “progress (1).sav”), rename them to progress.sav / caption.sav first. Then start the game and load the slot.', 'Pronto! Seus arquivos originais foram baixados como backup_*.sav.\nAgora copie o progress.sav e o caption.sav para a pasta do slot, substituindo os antigos. Se o navegador renomeou (ex.: “progress (1).sav”), renomeie para progress.sav / caption.sav antes. Depois abra o jogo e carregue o slot.'],
   saveErr: ['Save failed: {0}', 'Erro ao salvar: {0}'],
   confirmUndo: ['Discard the unsaved changes of this slot?', 'Descartar as alterações não salvas deste slot?'],
   confirmSwitch: ['There are unsaved changes in this slot. Switch anyway?', 'Há alterações não salvas neste slot. Trocar mesmo assim?'],
@@ -445,6 +472,22 @@ const I18N = {
   orManualFiles: ['Or edit files manually (like the first version): pick progress.sav and caption.sav, and the edited files are downloaded for you to copy back.', 'Ou edite os arquivos manualmente (como na primeira versão): escolha progress.sav e caption.sav e os editados são baixados para você copiar de volta.'],
   manualBtn: ['Pick files manually…', 'Escolher arquivos manualmente…'],
   compareHint: ['Compare with the game: open the slot in the game and check hearts, rupees and place. If they do not match, it is not the slot/folder the game uses.', 'Compare com o jogo: abra o slot no jogo e confira corações, rupias e local. Se não baterem, não é o slot/pasta que o jogo usa.'],
+  step1: ['Stop the game in your emulator (Emulation → Stop).', 'Pare o jogo no emulador (Emulação → Parar).'],
+  step2: ['Open the save folder: in the emulator, right-click the game → Open Save Data Location, then open the slot folder (slot_00, slot_01…).', 'Abra a pasta do save: no emulador, clique com o botão direito no jogo → Abrir local dos dados salvos, e entre na pasta do slot (slot_00, slot_01…).'],
+  step3: ['Drag progress.sav and caption.sav here (or the whole slot folder), or click the button below.', 'Arraste o progress.sav e o caption.sav para cá (ou a pasta inteira do slot), ou clique no botão abaixo.'],
+  step4: ['Edit, click “Save” and copy the edited files back into the same slot folder, replacing the old ones.', 'Edite, clique em “Salvar” e copie os arquivos editados de volta para a mesma pasta do slot, substituindo os antigos.'],
+  dropHere: ['Drop progress.sav + caption.sav or a slot folder here', 'Solte aqui o progress.sav + caption.sav ou a pasta do slot'],
+  whereSaves: ['The save folder usually ends with …\\user\\save\\0000000000000000\\<user id>\\0400486024DEC000\\slot_XX. Its location depends on your emulator (for example AppData or the emulator folder).', 'A pasta do save normalmente termina em …\\user\\save\\0000000000000000\\<id do usuário>\\0400486024DEC000\\slot_XX. O local depende do emulador (por exemplo, AppData ou a pasta do emulador).'],
+  saveDlgTitle: ['Save the edited files', 'Salvar os arquivos editados'],
+  saveDlgText: ['Your original files will be downloaded first as a backup. How do you want to get the edited files?', 'Seus arquivos originais serão baixados antes, como backup. Como você quer receber os arquivos editados?'],
+  dlgDownload: ['Download progress.sav + caption.sav', 'Baixar progress.sav + caption.sav'],
+  dlgFolder: ['Write directly into a folder… (Chrome/Edge)', 'Gravar direto numa pasta… (Chrome/Edge)'],
+  dlgCancel: ['Cancel', 'Cancelar'],
+  dlgNote: ['Writing into a folder does not work for folders inside AppData (the browser blocks them). In that case, use Download and copy the files yourself.', 'Gravar direto numa pasta não funciona em pastas dentro do AppData (o navegador bloqueia). Nesse caso, use Baixar e copie os arquivos você mesmo.'],
+  noProgressInFolder: ['There is no progress.sav in this folder. Is it really the slot folder?\nWrite the files here anyway?', 'Não há progress.sav nesta pasta. É mesmo a pasta do slot?\nGravar os arquivos aqui mesmo assim?'],
+  savedFolder: ['Done! Written into the folder “{0}”. Your originals were downloaded as backup_*.sav. Start the game and load the slot.', 'Pronto! Gravado na pasta “{0}”. Seus originais foram baixados como backup_*.sav. Abra o jogo e carregue o slot.'],
+  folderBlocked: ['The browser could not use that folder ({0}). Use “Download” and copy the files manually.', 'O navegador não conseguiu usar essa pasta ({0}). Use “Baixar” e copie os arquivos manualmente.'],
+  optionDownloaded: ['option.sav was downloaded too: put it in the 0400486024DEC000 folder.', 'O option.sav também foi baixado: coloque-o na pasta 0400486024DEC000.'],
   loadHint: ['Now start the game in the emulator and load {0}.', 'Agora abra o jogo no emulador e carregue o {0}.'],
 };
 let LANG = 'en';
@@ -1307,11 +1350,31 @@ async function save() {
       slot.meta = slotMeta(slot);
       toast(t('savedHelper', paths.join('\n')) + '\n' + t('loadHint', slot.label), 12000);
     } else {
-      for (const [file] of out) download(file.bytes, 'backup_' + file.role + '.sav');
-      await new Promise(r => setTimeout(r, 400));
-      for (const [file, data] of out) download(data, file.role + '.sav');
+      const choice = await askSaveMode();
+      if (!choice) return;
+      let dir = null;
+      if (choice === 'folder') {
+        try { dir = await showDirectoryPicker({ id: 'oot-slot', mode: 'readwrite' }); }
+        catch (e) { if (e.name !== 'AbortError') toast(t('folderBlocked', e.message), 9000); return; }
+        let hasProgress = true;
+        try { await dir.getFileHandle('progress.sav'); } catch { hasProgress = false; }
+        if (!hasProgress && !confirm(t('noProgressInFolder'))) return;
+      }
+      const tag = (slot.label === 'Save' ? 'slot' : slot.label) + '_' + stamp();
+      for (const [file] of out) download(file.bytes, 'backup_' + tag + '_' + file.role + '.sav');
+      await new Promise(r => setTimeout(r, 500));
+      let optionNote = '';
+      for (const [file, data] of out) {
+        if (dir && file.role !== 'option') {
+          const w = await (await dir.getFileHandle(file.role + '.sav', { create: true })).createWritable();
+          await w.write(data); await w.close();
+        } else {
+          download(data, file.role + '.sav');
+          if (dir) optionNote = '\n' + t('optionDownloaded');
+        }
+      }
       for (const [file, data] of out) file.bytes = data.slice();
-      toast(t('savedManual'), 14000);
+      toast((dir ? t('savedFolder', dir.name) : t('savedManual')) + optionNote, 16000);
     }
     loadSlot(st.slots.indexOf(slot));
   } catch (e) { toast(t('saveErr', e.message), 9000); }
@@ -1328,7 +1391,42 @@ async function restoreBackup(b, d) {
   } catch (e) { toast(t('restoreErr', e.message), 8000); }
 }
 
-/* ---------- Manual mode (no helper) ---------- */
+/* ---------- Manual mode ---------- */
+function askSaveMode() {
+  return new Promise(res => {
+    const dlg = $('saveDlg');
+    $('dlgFolder').hidden = !window.showDirectoryPicker;
+    dlg.hidden = false;
+    const done = v => { dlg.hidden = true; for (const id of ['dlgDownload', 'dlgFolder', 'dlgCancel']) $(id).onclick = null; res(v); };
+    $('dlgDownload').onclick = () => done('download');
+    $('dlgFolder').onclick = () => done('folder');
+    $('dlgCancel').onclick = () => done(null);
+  });
+}
+async function filesFromDrop(dt) {
+  const entries = [...dt.items].map(i => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean);
+  const files = [];
+  const walk = (entry, prefix, depth) => new Promise(res => {
+    if (entry.isFile) entry.file(f => { files.push({ f, path: prefix + f.name }); res(); }, () => res());
+    else if (entry.isDirectory && depth < 4) {
+      const r = entry.createReader(), all = [];
+      const more = () => r.readEntries(async es => { if (!es.length) { for (const x of all) await walk(x, prefix + entry.name + '/', depth + 1); res(); } else { all.push(...es); more(); } }, () => res());
+      more();
+    } else res();
+  });
+  for (const e of entries) await walk(e, '', 0);
+  if (!entries.length) for (const f of dt.files) files.push({ f, path: f.name });
+  const out = [];
+  for (const { f, path } of files) if (/\.sav$/i.test(f.name) && f.size <= 4 << 20) out.push({ path, name: f.name, bytes: new Uint8Array(await f.arrayBuffer()), handle: null });
+  return out;
+}
+function openManualFiles(list) {
+  const slots = buildSlots(list);
+  if (!slots.length) { setMsg('manualMsg', t('noSaveFound'), 'err'); return; }
+  setMsg('manualMsg', '');
+  st.slots = slots; st.dir = null; st.helper = false;
+  if (slots.length === 1) { showSlotPicker(); openSlot(0); } else showSlotPicker();
+}
 async function collectFromFileList(files) {
   const out = [];
   for (const f of files) if (/\.sav$/i.test(f.name) && f.size <= 4 << 20) out.push({ path: f.webkitRelativePath || f.name, name: f.name, bytes: new Uint8Array(await f.arrayBuffer()), handle: null });
@@ -1389,11 +1487,11 @@ function wire() {
   });
   $('btnFiles').addEventListener('click', () => $('fileInput').click());
   $('btnManual2').addEventListener('click', () => { enterManual(); $('fileInput').click(); });
-  $('fileInput').addEventListener('change', async e => {
-    const slots = buildSlots(await collectFromFileList(e.target.files));
-    if (!slots.length) { setMsg('manualMsg', t('noSaveFound'), 'err'); return; }
-    st.slots = slots; st.dir = null; showSlotPicker();
-  });
+  $('fileInput').addEventListener('change', async e => { openManualFiles(await collectFromFileList(e.target.files)); e.target.value = ''; });
+  const dz = $('dropZone');
+  for (const ev of ['dragenter', 'dragover']) document.addEventListener(ev, e => { if (!$('manualBox').hidden) { e.preventDefault(); dz.classList.add('over'); } });
+  document.addEventListener('dragleave', e => { if (!e.relatedTarget) dz.classList.remove('over'); });
+  document.addEventListener('drop', async e => { if ($('manualBox').hidden) return; e.preventDefault(); dz.classList.remove('over'); openManualFiles(await filesFromDrop(e.dataTransfer)); });
   window.addEventListener('beforeunload', e => { if (st.p && countChanges()) { e.preventDefault(); e.returnValue = ''; } });
 }
 
